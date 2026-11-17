@@ -1,0 +1,14 @@
+services:
+  entrenamiento:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    gpus: all
+    init: true
+    shm_size: 2gb
+    volumes:
+      - ./runs:/workspace/runs
+      - ./subtareas:/workspace/subtareas
+      - ./global:/workspace/global
+      - ./informe:/workspace/informe
+    command: ["python3", "-u", "-m", "robocup_rl.campana", "--steps", "10000", "--seeds", "0", "1", "2", "--evaluate", "200"]

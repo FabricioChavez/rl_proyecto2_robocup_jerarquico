@@ -1,0 +1,7 @@
+.git
+.venv
+referencias
+runs
+**/resultados
+__pycache__
+data

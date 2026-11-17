@@ -1,0 +1,7 @@
+{
+  "task": "plana",
+  "algorithm": "dqn",
+  "device": "cuda",
+  "primitive_budget": 10000,
+  "option_steps": 1
+}
