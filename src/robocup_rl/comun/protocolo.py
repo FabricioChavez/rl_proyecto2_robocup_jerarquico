@@ -28,11 +28,27 @@ class UDP:
         self.sock.settimeout(5)
         self.addr = (host, port)
         self.send(init)
-        msg, self.addr = self.sock.recvfrom(65535)
-        self.initial = sexpr(msg.decode().strip('\0'))
-        if self.initial[0] != 'init':
+        # UDP may deliver server_param/player_type before the init reply.
+        # Only init confirms the handshake and its dynamically assigned port.
+        deadline = time.monotonic() + 5
+        try:
+            while True:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise TimeoutError('No se recibió la confirmación init')
+                self.sock.settimeout(remaining)
+                msg, addr = self.sock.recvfrom(65535)
+                response = sexpr(msg.decode().strip('\0'))
+                if response[0] == 'error':
+                    raise RuntimeError(f'Handshake rechazado: {response}')
+                if response[0] == 'init':
+                    self.initial = response
+                    self.addr = addr
+                    break
+            self.sock.settimeout(5)
+        except BaseException:
             self.close()
-            raise RuntimeError(f'Handshake rechazado: {self.initial}')
+            raise
 
     def send(self, command):
         self.sock.sendto((command + '\0').encode(), self.addr)

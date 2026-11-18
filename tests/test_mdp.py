@@ -1,6 +1,6 @@
 import numpy as np
 import pytest
-from robocup_rl.comun.protocolo import sexpr,World
+from robocup_rl.comun.protocolo import sexpr,World,UDP
 from robocup_rl.comun.acciones import command,N_ACTIONS
 
 
@@ -36,3 +36,29 @@ def test_actions_have_legal_primitive_command():
             result=sexpr(command(task,action,world))
             assert result[0] in ('turn','kick','dash')
             assert -180<=result[-1]<=180
+
+
+def test_handshake_accepts_out_of_order_parameters(monkeypatch):
+    from unittest.mock import MagicMock
+    sock=MagicMock()
+    sock.recvfrom.side_effect=[
+        (b'(server_param (port 6200))\0',('127.0.0.1',6200)),
+        (b'(player_type (id 0))\0',('127.0.0.1',6200)),
+        (b'(init l 1 before_kick_off)\0',('127.0.0.1',15432)),
+    ]
+    monkeypatch.setattr('robocup_rl.comun.protocolo.socket.socket',lambda *args: sock)
+    client=UDP('127.0.0.1',6200,'(init Emilia (version 18))')
+    assert client.initial==['init','l',1.,'before_kick_off']
+    assert client.addr==('127.0.0.1',15432)
+    sock.close.assert_not_called()
+    client.close()
+
+
+def test_handshake_closes_socket_on_rejection(monkeypatch):
+    from unittest.mock import MagicMock
+    sock=MagicMock()
+    sock.recvfrom.return_value=(b'(error no_more_player)\0',('127.0.0.1',6200))
+    monkeypatch.setattr('robocup_rl.comun.protocolo.socket.socket',lambda *args: sock)
+    with pytest.raises(RuntimeError,match='no_more_player'):
+        UDP('127.0.0.1',6200,'(init Emilia (version 18))')
+    sock.close.assert_called_once()
