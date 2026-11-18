@@ -171,6 +171,41 @@ las tres habilidades con las mismas semillas. La rama humana se agrega después.
 
 ## 6. Probar y visualizar
 
+### Visualización basada en el notebook de Jeffrey (recomendada)
+
+Abre `notebooks/visualizacion_p2_jeffrey.ipynb` en VS Code y selecciona el kernel
+**RoboCup P2 (CUDA)**. Conserva el campo de `draw_pitch` y la animación paso a
+paso del notebook P1, conectados a las políticas P2 y al estado real UDP.
+La fuente y el commit exactos están documentados en el notebook y en
+`src/robocup_rl/visual_jeffrey.py`. Se amplió el encuadre para ver todo el arco.
+
+También puedes abrirlo en JupyterLab desde PowerShell:
+
+```powershell
+cd D:\2026_2_CS\RL\PROYECTO\rl_robocup_jerarquico
+.\ver_notebook.ps1
+```
+
+En otra instalación, prepara primero las dependencias y el kernel:
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -e ".[notebooks]"
+.\.venv\Scripts\python.exe -m ipykernel install --user --name robocup-p2 --display-name "RoboCup P2 (CUDA)"
+```
+
+Ejecuta las celdas en orden. Cambia `TAREA`, `ALGORITMO` y `SEMILLA` para elegir
+un modelo. `INICIAL` establece posiciones, velocidad del balón y conducta de los
+rivales; `CAMBIOS` programa perturbaciones durante el episodio.
+`PASO_A_PASO=True` permite avanzar con Enter manteniendo congelada la física
+mientras decides. `ZONA` dibuja y mide una región adicional; no cambia el objetivo
+que aprendió la red ni produce reentrenamiento. Para persecución, mover el balón
+sí cambia la posición del objetivo observado por la política.
+
+Los frames, parámetros y trayectorias se guardan en `runs/demo_jeffrey/`, separados
+de los resultados del benchmark. Esta demostración utiliza el puerto 6500.
+
+### Visualización rápida desde terminal
+
 Elige un modelo terminado. Por ejemplo, tras la campaña:
 
 ```powershell
@@ -294,5 +329,7 @@ probado es **PowerShell + WSL**, y la imagen Docker queda sin validación de bui
 - [Stable-Baselines3](https://stable-baselines3.readthedocs.io/en/master/):
   implementación de DQN, PPO y A2C; se usan sus pérdidas y checkpoints originales.
 
-La implementación Python de este proyecto es nueva; los repositorios anteriores
-se mantienen fuera del repositorio publicado como referencias de lectura.
+El módulo `visual_jeffrey.py` adapta `draw_pitch` del notebook de P1, con su fuente
+y commit identificados. El entorno P2, entrenamiento y adaptador de políticas
+se implementan aquí; las copias completas de los repositorios de referencia
+permanecen fuera del repositorio publicado.
