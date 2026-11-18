@@ -36,7 +36,6 @@ COPY src ./src
 RUN python -m pip install --no-cache-dir 'torch>=2.3' --index-url ${TORCH_INDEX_URL} \
     && python -m pip install --no-cache-dir .
 COPY docker/start_visual.sh /opt/robocup/start_visual.sh
-COPY pretrained ./pretrained
-COPY escenarios ./escenarios
+COPY proyecto.py ./proyecto.py
 EXPOSE 6080
 CMD ["bash", "/opt/robocup/start_visual.sh"]

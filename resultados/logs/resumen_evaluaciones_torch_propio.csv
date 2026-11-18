@@ -1,0 +1,7 @@
+tarea,algoritmo,corrida,escenario,episodios,retorno,dispersion_episodica,exito,goles,duracion,csv
+persecucion,ppo,semilla_0,1v1,10,8.487886128561044,0.39430314051690724,1.0,0.0,15.8,resultados/logs/persecucion/ppo/semilla_0/evaluacion_1v1.csv
+persecucion,ppo,semilla_0,2v1,10,7.405272010333467,3.4287148614223915,0.9,0.0,21.6,resultados/logs/persecucion/ppo/semilla_0/evaluacion_2v1.csv
+conduccion,ppo,semilla_0,1v1,10,-3.738952582858464,0.7296604040617212,0.0,0.0,43.3,resultados/logs/conduccion/ppo/semilla_0/evaluacion_1v1.csv
+conduccion,ppo,semilla_0,2v1,10,-3.7825775329583884,0.36482445565257027,0.0,0.1,38.0,resultados/logs/conduccion/ppo/semilla_0/evaluacion_2v1.csv
+definicion,ppo,semilla_0,1v1,10,8.132815415986965,3.532652280387635,0.9,0.9,16.8,resultados/logs/definicion/ppo/semilla_0/evaluacion_1v1.csv
+definicion,ppo,semilla_0,2v1,10,9.335569080124177,0.04142512657364464,1.0,1.0,7.2,resultados/logs/definicion/ppo/semilla_0/evaluacion_2v1.csv

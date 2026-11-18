@@ -1,7 +1,9 @@
 .git
 .venv
-referencias
-runs
-**/resultados
+resultados
+informe
+datos
 __pycache__
-data
+.pytest_cache
+*.egg-info
+**/*.egg-info

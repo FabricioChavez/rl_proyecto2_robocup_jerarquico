@@ -1,7 +1,0 @@
-{
-  "task": "plana",
-  "algorithm": "ppo",
-  "device": "cuda",
-  "primitive_budget": 10000,
-  "option_steps": 1
-}

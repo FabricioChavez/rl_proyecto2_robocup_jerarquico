@@ -10,11 +10,9 @@ x-runtime: &runtime
   environment:
     ROBOCUP_DEVICE: cpu
   volumes:
-    - ./runs:/workspace/runs
-    - ./subtareas:/workspace/subtareas
-    - ./global:/workspace/global
+    - ./resultados:/workspace/resultados
     - ./informe:/workspace/informe
-    - ./escenarios:/workspace/escenarios:ro
+    - ./datos:/workspace/datos
 
 services:
   visual:
@@ -29,7 +27,7 @@ services:
       timeout: 5s
       start_period: 15s
       retries: 5
-  entrenamiento:
+  proyecto:
     <<: *runtime
-    profiles: ["training"]
-    command: ["python", "-u", "-m", "robocup_rl.campana", "--steps", "10000", "--seeds", "0", "1", "2", "--evaluate", "200"]
+    entrypoint: ["python", "proyecto.py"]
+    command: ["estado"]

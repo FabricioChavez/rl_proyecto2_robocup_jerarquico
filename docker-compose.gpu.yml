@@ -13,7 +13,7 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
-  entrenamiento:
+  proyecto:
     image: robocup-p2:cuda
     build:
       args:

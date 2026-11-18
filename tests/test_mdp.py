@@ -1,85 +1,83 @@
 import numpy as np
 import pytest
-from robocup_rl.comun.protocolo import sexpr,World,UDP
-from robocup_rl.comun.acciones import command,N_ACTIONS
+from entorno.cliente_udp import sexpr, World, UDP
+from entorno.acciones import command, N_ACTIONS
 
 
 def test_world_parses_trainer_and_look_consistently():
-    payload='42 ((b) 1 2 0.1 0.2) ((p "Attack" 1) 0 0 0 0 0 0)'
-    a=World(sexpr('(see_global '+payload+')'))
-    b=World(sexpr('(ok look '+payload+')'))
-    assert a.cycle==b.cycle==42
-    np.testing.assert_array_equal(a.ball,b.ball)
-    np.testing.assert_array_equal(a.players[('Attack',1)],b.players[('Attack',1)])
+    payload = '42 ((b) 1 2 0.1 0.2) ((p "Attack" 1) 0 0 0 0 0 0)'
+    a = World(sexpr("(see_global " + payload + ")"))
+    b = World(sexpr("(ok look " + payload + ")"))
+    assert a.cycle == b.cycle == 42
+    np.testing.assert_array_equal(a.ball, b.ball)
+    np.testing.assert_array_equal(a.players[("Attack", 1)], b.players[("Attack", 1)])
 
 
 def test_pbrs_telescopes_even_on_timeout():
-    gamma=.99
-    potentials=[-2.,-.8,-1.2,0.]  # finite terminal potential forced to zero
-    shaping=[gamma*b-a for a,b in zip(potentials,potentials[1:])]
-    assert sum(gamma**t*f for t,f in enumerate(shaping))==pytest.approx(-potentials[0])
+    gamma = 0.99
+    potentials = [-2.0, -0.8, -1.2, 0.0]  # finite terminal potential forced to zero
+    shaping = [gamma * b - a for a, b in zip(potentials, potentials[1:])]
+    assert sum(gamma**t * f for t, f in enumerate(shaping)) == pytest.approx(
+        -potentials[0]
+    )
 
 
 def test_pbrs_option_discount_matches_primitive_discount():
-    gamma=.99
-    potentials=np.random.default_rng(0).normal(size=17); potentials[-1]=0
-    f=gamma*potentials[1:]-potentials[:-1]
-    primitive=sum(gamma**t*r for t,r in enumerate(f))
-    options=[sum(gamma**j*r for j,r in enumerate(f[i:i+8])) for i in (0,8)]
-    assert options[0]+gamma**8*options[1]==pytest.approx(primitive)
+    gamma = 0.99
+    potentials = np.random.default_rng(0).normal(size=17)
+    potentials[-1] = 0
+    f = gamma * potentials[1:] - potentials[:-1]
+    primitive = sum(gamma**t * r for t, r in enumerate(f))
+    options = [sum(gamma**j * r for j, r in enumerate(f[i : i + 8])) for i in (0, 8)]
+    assert options[0] + gamma**8 * options[1] == pytest.approx(primitive)
 
 
 def test_actions_have_legal_primitive_command():
-    world=World(sexpr('(see_global 1 ((b) 0 0 0 0) ((p "Attack" 1) 0 0 0 0 0 0) ((p "Attack" 2) 10 5 0 0 0 0))'))
-    for task in ('persecucion','conduccion','definicion','plana'):
+    world = World(
+        sexpr(
+            '(see_global 1 ((b) 0 0 0 0) ((p "Attack" 1) 0 0 0 0 0 0) ((p "Attack" 2) 10 5 0 0 0 0))'
+        )
+    )
+    for task in ("persecucion", "conduccion", "definicion", "plana"):
         for action in range(N_ACTIONS[task]):
-            result=sexpr(command(task,action,world))
-            assert result[0] in ('turn','kick','dash')
-            assert -180<=result[-1]<=180
+            result = sexpr(command(task, action, world))
+            assert result[0] in ("turn", "kick", "dash")
+            assert -180 <= result[-1] <= 180
 
 
 def test_handshake_accepts_out_of_order_parameters(monkeypatch):
     from unittest.mock import MagicMock
-    sock=MagicMock()
-    sock.recvfrom.side_effect=[
-        (b'(server_param (port 6200))\0',('127.0.0.1',6200)),
-        (b'(player_type (id 0))\0',('127.0.0.1',6200)),
-        (b'(init l 1 before_kick_off)\0',('127.0.0.1',15432)),
+
+    sock = MagicMock()
+    sock.recvfrom.side_effect = [
+        (b"(server_param (port 6200))\0", ("127.0.0.1", 6200)),
+        (b"(player_type (id 0))\0", ("127.0.0.1", 6200)),
+        (b"(init l 1 before_kick_off)\0", ("127.0.0.1", 15432)),
     ]
-    monkeypatch.setattr('robocup_rl.comun.protocolo.socket.socket',lambda *args: sock)
-    client=UDP('127.0.0.1',6200,'(init Attack (version 18))')
-    assert client.initial==['init','l',1.,'before_kick_off']
-    assert client.addr==('127.0.0.1',15432)
+    monkeypatch.setattr("entorno.cliente_udp.socket.socket", lambda *args: sock)
+    client = UDP("127.0.0.1", 6200, "(init Attack (version 18))")
+    assert client.initial == ["init", "l", 1.0, "before_kick_off"]
+    assert client.addr == ("127.0.0.1", 15432)
     sock.close.assert_not_called()
     client.close()
 
 
 def test_handshake_closes_socket_on_rejection(monkeypatch):
     from unittest.mock import MagicMock
-    sock=MagicMock()
-    sock.recvfrom.return_value=(b'(error no_more_player)\0',('127.0.0.1',6200))
-    monkeypatch.setattr('robocup_rl.comun.protocolo.socket.socket',lambda *args: sock)
-    with pytest.raises(RuntimeError,match='no_more_player'):
-        UDP('127.0.0.1',6200,'(init Attack (version 18))')
+
+    sock = MagicMock()
+    sock.recvfrom.return_value = (b"(error no_more_player)\0", ("127.0.0.1", 6200))
+    monkeypatch.setattr("entorno.cliente_udp.socket.socket", lambda *args: sock)
+    with pytest.raises(RuntimeError, match="no_more_player"):
+        UDP("127.0.0.1", 6200, "(init Attack (version 18))")
     sock.close.assert_called_once()
 
 
 def test_device_uses_explicit_cpu_and_rejects_missing_cuda(monkeypatch):
-    from robocup_rl.algoritmos import selected_device
-    monkeypatch.setenv('ROBOCUP_DEVICE','cpu')
-    assert selected_device()=='cpu'
-    monkeypatch.setattr('torch.cuda.is_available',lambda:False)
-    with pytest.raises(RuntimeError,match='CUDA'):
-        selected_device('cuda')
+    from modelo.pesos import dispositivo_elegido as selected_device
 
-
-def test_fresh_clone_resolves_bundled_weights_but_prefers_local_run(tmp_path,monkeypatch):
-    from robocup_rl.algoritmos import checkpoint_path
-    from robocup_rl.campana import location
-    monkeypatch.chdir(tmp_path)
-    bundled=tmp_path/'pretrained/2v1/seed_0/persecucion/ppo.zip'
-    bundled.parent.mkdir(parents=True); bundled.write_bytes(b'fixture')
-    assert checkpoint_path('persecucion','ppo').resolve()==bundled
-    local=location('persecucion','ppo',0)/'final.zip'
-    local.parent.mkdir(parents=True); local.write_bytes(b'newer-run')
-    assert checkpoint_path('persecucion','ppo')==local
+    monkeypatch.setenv("ROBOCUP_DEVICE", "cpu")
+    assert selected_device() == "cpu"
+    monkeypatch.setattr("torch.cuda.is_available", lambda: False)
+    with pytest.raises(RuntimeError, match="CUDA"):
+        selected_device("cuda")

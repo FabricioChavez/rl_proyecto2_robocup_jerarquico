@@ -1,443 +1,74 @@
-# RoboCup 2D — Proyecto P2, Vía A
+# RoboCup 2D — P2
 
-Tres habilidades autónomas: **persecución/intercepción**, **conducción/drible/pase** y
-**definición**. Cada una permite **DQN, A2C y PPO**, PBRS y mejora posterior con
-**BC o DAgger de una experta humana**. El meta-controlador y la política plana
-se entrenan por separado. El simulador es el servidor oficial **rcssserver 19**:
-no se sustituye su física por una simulación casera.
+Una entrada: **`python proyecto.py <comando>`**. Modelos únicamente `.pth`.
+Los parámetros se pasan por argumentos; no hay archivos de configuración de modelos.
 
-Repositorio público: <https://github.com/FabricioChavez/rl_proyecto2_robocup_jerarquico>
+**PPO, A2C y DQN están implementados directamente en PyTorch. No se importa ni se necesita Stable Baselines3.**
+El código de cada actualización está en [PPO](src/modelo/arquitecturas/ppo.py),
+[A2C](src/modelo/arquitecturas/a2c.py) y [DQN](src/modelo/arquitecturas/dqn.py).
+La recolección de transiciones y el loop están en [entrenamiento.py](src/modelo/entrenamiento.py).
+Consulta [la implementación de los métodos](src/modelo/README.md) para seguir las fórmulas hasta el código.
 
-## Inicio principal: Docker (Windows, Linux y macOS)
+Los 45 modelos anteriores **sí fueron entrenados con SB3**. Se conservan en corridas `sb3_semilla_N`,
+como referencia histórica. Las corridas nuevas `semilla_N` se entrenan desde cero con los métodos propios.
+Los ensayos cortos de funcionamiento se conservaron fuera de los resultados de la campaña.
 
-Todo se ejecuta **dentro del contenedor Linux**: servidor, políticas y monitor
-oficial `rcssmonitor`. El navegador solo muestra la ventana oficial por noVNC;
-no hay un panel de fútbol creado aparte. No necesitas instalar Python, Qt, WSL
-ni X11 en el host para este camino. Necesitas Docker Engine/Desktop en ejecución
-y Docker Compose v2. Docker Desktop administra su propia VM cuando corresponde.
-
-Desde una terminal situada en la raíz del repositorio, para probar con CPU:
-
-```bash
-docker compose up --build visual
-```
-
-Abre tú [el monitor local](http://localhost:6080/vnc.html?autoconnect=true&resize=scale).
-La construcción inicial descarga dependencias y compila ambos programas oficiales.
-Se incluyen 15 modelos de semilla 0 / escenario 2v1 en `pretrained/`; una copia
-nueva del repo puede reproducirlos sin reentrenamiento. Para las otras semillas
-se necesitan sus resultados locales o entrenarlas.
-
-En Windows con backend WSL2 y NVIDIA, o Linux con NVIDIA Container Toolkit,
-para usar CUDA en lugar de CPU:
-
-```bash
-docker compose -f docker-compose.yml -f docker-compose.gpu.yml up --build visual
-```
-
-macOS usa la variante CPU. Esta imagen no utiliza CUDA ni la GPU Metal del Mac.
-CPU permite probar los mismos pesos entrenados con CUDA; el entrenamiento puede
-ser más lento. La configuración gráfica evita depender del escritorio del host.
-
-Para detener: `Ctrl+C` y luego `docker compose down`. Para más modelos, escenarios,
-pausa y entrenamiento, consulta [la guía Docker](docker/README.md).
-
-**Validación:** Compose CPU/GPU validado con Compose v2.24.3; inferencia real en
-CPU, equipos neutrales y conexión HTTP/WebSocket de noVNC comprobados. La imagen
-completa aún no se pudo construir: el daemon Docker local está apagado. No se
-afirma haber probado el build en macOS/ARM64 ni el runtime CUDA en contenedor.
-Los pasos nativos de Windows + WSL que siguen quedan como alternativa local.
-
-## 1. Estado y alcance
-
-- Implementados el entorno real, las tres subtareas, DQN/PPO/A2C, jerarquía,
-  baseline MC, evaluación, PBRS, BC/DAgger y registro de experimentos.
-- El presupuesto inicial es **10 000 pasos por subtarea/algoritmo/semilla**.
-  Son pasos, no episodios. La campaña usa semillas 0, 1 y 2.
-- Para el meta-controlador se usan **1 200 decisiones de 8 ciclos**: como máximo
-  9 600 ciclos físicos. Las opciones terminan antes si finaliza el episodio.
-- Las demostraciones humanas quedan pendientes para la experta humana. No se generan
-  etiquetas humanas artificiales. Los ensayos automáticos de imitación usan
-  un controlador **heurístico**, identificado en cada muestra.
-- **No se afirma haber alcanzado 80% de goles ni superioridad estadística.**
-  Las pruebas cortas verifican ejecución y actualizaciones, no convergencia.
-- El estado se obtiene de la percepción global del trainer y se transforma a
-  distancias/ángulos relativos: es **observación privilegiada**. No se ha resuelto
-  localización ni visión parcial ruidosa. Las patadas, carreras, inercia,
-  estamina y paradas del arquero se ejecutan en el servidor real.
-- El informe IEEE final y las conclusiones experimentales quedan pendientes.
-  La lista completa está en [informe/REQUISITOS.md](informe/REQUISITOS.md).
-
-## 2. Organización (estilo Lab 4, separada por habilidad y algoritmo)
+## Dónde está cada cosa
 
 ```text
-subtareas/
-  persecucion/{ppo,a2c,dqn,bc,dagger}/
-  conduccion/{ppo,a2c,dqn,bc,dagger}/
-  definicion/{ppo,a2c,dqn,bc,dagger}/
-global/
-  jerarquico/{ppo,a2c,dqn}/
-  plana/{ppo,a2c,dqn}/
-src/robocup_rl/
-  comun/           UDP, acciones, MDP, servidor, pausa para experta humana
-  algoritmos.py    configuración compartida de DQN/A2C/PPO
-  entrenar.py      entrenamiento con servidor externo
-  ejecutar.py      entrenamiento + servidor administrado automáticamente
-  campana.py       cola reproducible de experimentos y evaluación
-  evaluar.py       episodios independientes, retorno base, goles, IC Wilson
-  imitacion.py     captura humana/heurística, BC, DAgger
-  baseline.py      MC first-visit con discretización 4x5 inspirada en P1
-  comparar.py      bootstrap de diferencias de tasa de gol
-  graficar.py      curvas agrupadas por semilla
-docker/            imagen CUDA + servidor oficial fijado a un commit
-scripts/           instalación del servidor, verificación y contraejemplo PBRS
-notebooks/         espacio de exploración opcional
-data/humanos/      demostraciones locales (no se publican por defecto)
-informe/           teoría, checklist, resultados y figuras
-runs/              estado de la cola, logs y pruebas de integración
+proyecto.py                 Entrada única
+src/
+  modelo/
+    arquitecturas/          PPO, A2C y DQN
+    entrenamiento.py        Loop de entrenamiento y continuación
+    pesos.py                Guardar/cargar checkpoints .pth
+    imitacion.py            Demostraciones, BC y DAgger
+  entorno/                  Física oficial, UDP y condiciones del escenario
+  evaluador/
+    evaluar.py              Lotes aleatorios SIN ventana → CSV
+    visualizar.py           Ejecutar un .pth en rcssmonitor oficial
+    graficas.py             CSV → gráficas PNG
+    informe.py              Volcar resultados a informe/
+resultados/
+  modelo_weights/           Pesos .pth por tarea/algoritmo/semilla
+  logs/                     Episodios, actualizaciones y evaluaciones CSV
+  graficas/                 Aprendizaje, pérdidas y comparación de algoritmos
+informe/                    Volcado para revisar/compartir resultados
+GUIA.md                     Instrucciones completas, paso a paso
 ```
 
-La lógica compartida permanece en `src/`: no hay nueve copias del bucle de
-entrenamiento. Cada carpeta de algoritmo contiene su configuración y su espacio
-de resultados. `config.json` es descriptivo; los parámetros efectivos se pasan
-por CLI y se guardan nuevamente junto al modelo.
+**[Índice de modelos y CSV disponibles](resultados/README.md)** · **[Guía paso a paso](GUIA.md)** · **[Mapa del código](src/README.md)**
 
-## 3. Instalación en esta PC (PowerShell + WSL Ubuntu)
+## Comandos
 
-**Ya está preparado localmente** el entorno `.venv` y el binario `rcssserver`
-en Ubuntu WSL. Para trabajar abre **PowerShell**, no la consola Python:
+Con las dependencias y el servidor instalados, desde la raíz:
 
-```powershell
-cd D:\2026_2_CS\RL\PROYECTO\rl_robocup_jerarquico
-.\.venv\Scripts\python.exe -c "import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.get_device_name(0))"
+```bash
+python proyecto.py estado
+python proyecto.py entrenar --tarea persecucion --algoritmo ppo --pasos 10000 --gamma 0.99 --lr 0.0003 --dispositivo cuda --corrida prueba
+python proyecto.py evaluar --tareas persecucion --algoritmos ppo --semillas 0 --episodios 200 --escenarios 1v1 2v1 --dispositivo cpu
+python proyecto.py ver --tarea persecucion --algoritmo ppo --dispositivo cpu
+python proyecto.py graficar
+python proyecto.py informe
 ```
 
-En otra máquina con Windows + NVIDIA + WSL2 Ubuntu:
+El modelo de persecución/PPO/semilla 0 está en:
+**[resultados/modelo_weights/persecucion/ppo/semilla_0/final.pth](resultados/modelo_weights/persecucion/ppo/semilla_0/final.pth)**.
+Sus datos están en `resultados/logs/persecucion/ppo/semilla_0/`.
+Mientras esa corrida está entrenando, el archivo se llama `checkpoint.pth`; `final.pth` aparece al terminar.
+`python proyecto.py estado` lista los pesos terminados. Los logs de la campaña propia están en
+`resultados/logs/campana/torch_stdout.log` y `torch_stderr.log`.
 
-```powershell
-git clone https://github.com/FabricioChavez/rl_proyecto2_robocup_jerarquico.git
-cd rl_proyecto2_robocup_jerarquico
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install torch --index-url https://download.pytorch.org/whl/cu128
-.\.venv\Scripts\python.exe -m pip install -e . pytest
-wsl -d Ubuntu -- bash scripts/setup_server.sh
+## Docker
+
+```bash
+docker compose build proyecto
+docker compose run --rm proyecto graficar
+docker compose run --rm proyecto informe
+docker compose up visual
 ```
 
-El último comando solicita la contraseña de `sudo` dentro de WSL si es necesaria.
-Los comandos administrados usan `wsl -d Ubuntu -u root` y `systemd-run` para
-arrancar un **servidor exclusivo por puerto**, cerrándolo al terminar. Si tu
-distribución tiene otro nombre, define `$env:ROBOCUP_WSL_DISTRO='Nombre'`.
-Si se bloquean paquetes UDP entre Windows y WSL, ejecuta el mismo proyecto en
-Linux o usa Docker. No ejecutes dos trabajos en el mismo puerto.
-
-CUDA es obligatoria por defecto: la aplicación falla si no está disponible.
-SB3 puede advertir que una MLP pequeña corre más rápido en CPU; aquí se respeta
-la elección de CUDA y se verifica que los parámetros estén en la GPU.
-
-## 4. Entrenar una habilidad (un comando)
-
-Desde PowerShell en la raíz:
-
-```powershell
-.\.venv\Scripts\python.exe -m robocup_rl.ejecutar --task persecucion --algo ppo --steps 10000 --seed 0 --port 6100
-.\.venv\Scripts\python.exe -m robocup_rl.ejecutar --task conduccion --algo a2c --steps 10000 --seed 0 --port 6100
-.\.venv\Scripts\python.exe -m robocup_rl.ejecutar --task definicion --algo dqn --steps 10000 --seed 0 --port 6100
-```
-
-También: `./entrenar.ps1 -Subtarea persecucion -Algoritmo ppo -Pasos 10000`.
-Para probar el escenario sin compañero añade `--scenario 1v1`; el predeterminado
-es `2v1`. En ambos hay un defensor y un arquero activos. El compañero de 2v1
-tiene un controlador heurístico de apoyo/tiro, y puede recibir pases; no es un
-segundo agente neuronal aprendido.
-
-Un entrenamiento individual guarda por defecto en
-`runs/<task>/<algo>/<shaping>/<scenario>/seed_<n>/`.
-La campaña organizada guarda en las carpetas `resultados/` descritas abajo.
-Usa `--output ruta` para elegir un destino. Para repetir sin sobrescribir, usa
-otra salida; el programa rechaza reemplazar un `final.zip` existente.
-
-Cada corrida guarda:
-
-- `config.json`: hiperparámetros, GPU, versiones y esquema de observación/acción.
-- `episodes.monitor.csv`: retornos, duración y éxito por episodio.
-- `progress.csv`: pérdidas, estadísticas y actualizaciones de SB3.
-- `checkpoint.zip`: política recuperable, cada 1 000 decisiones.
-- `final.zip`: modelo terminado; `status.json`: estado real de la corrida.
-
-PPO exige un múltiplo de 200 pasos y A2C de 100 para respetar el presupuesto
-sin excederlo al completar un rollout. DQN empieza a actualizar tras 500 pasos.
-Las pruebas DQN deben superar ese umbral.
-
-## 5. Campaña completa y proceso en segundo plano
-
-```powershell
-.\.venv\Scripts\python.exe -u -m robocup_rl.campana --steps 10000 --seeds 0 1 2 --algorithms ppo a2c dqn --scenario 2v1 --evaluate 200 --port 6200
-```
-
-El orden es: por semilla/algoritmo, entrenar persecución, conducción, definición,
-después jerarquía con esas tres políticas congeladas y finalmente política plana.
-Al terminar el bloque de entrenamientos, cada modelo se evalúa en 200 episodios independientes. Son **45 corridas**;
-10 000 es el límite de cada entrenamiento, no de toda la campaña.
-El proceso falla visiblemente ante un error y deja un registro de la causa.
-Repetir el comando omite modelos/evaluaciones ya terminados.
-
-En esta PC, la campaña iniciada por Codex se registra en:
-
-```powershell
-Get-Content runs\background.json
-Get-Content runs\campaign_status.json
-Get-Content runs\training.stdout.log -Tail 20
-Get-Content runs\training.stderr.log -Tail 10
-```
-
-Para detenerla y sus procesos descendientes, utiliza el PID de `background.json`:
-
-```powershell
-$run = Get-Content runs\background.json | ConvertFrom-Json
-taskkill /PID $run.pid /T /F
-wsl -d Ubuntu -u root -- systemctl stop robocup-rl-6200
-```
-
-Si la detienes forzosamente, se conserva el último checkpoint pero no el replay
-buffer ni el RNG exacto. Recuperación aproximada de una corrida:
-
-```powershell
-.\.venv\Scripts\python.exe -m robocup_rl.ejecutar --task persecucion --algo ppo --resume RUTA\checkpoint.zip --steps 2000 --output runs\recuperacion --port 6100
-```
-
-Repite la campaña con `--scenario 1v1` para completar la otra condición exigida.
-Para investigar shaping añade `--ablations`: ejecuta `none`, `pbrs` y `naive` en
-las tres habilidades con las mismas semillas. La rama humana se agrega después.
-
-## 6. Probar y visualizar
-
-### Monitor oficial de RoboCup: rcssmonitor (opción principal)
-
-En esta PC ya está instalado **rcssmonitor 19.0.1** en Ubuntu WSL y utiliza
-WSLg para mostrar la ventana en Windows. Abre **PowerShell** en la raíz:
-
-```powershell
-cd D:\2026_2_CS\RL\PROYECTO\rl_robocup_jerarquico
-.\ver_monitor.ps1 -Tarea global -Algoritmo ppo
-```
-
-Se abre el monitor oficial, carga el modelo y ejecuta las acciones con CUDA a
-10 ciclos por segundo. El servidor usa el puerto 6500, separado de la campaña.
-Repite episodios hasta cerrar el monitor o pulsar `q` en la terminal.
-
-Para ver una habilidad o cambiar el algoritmo:
-
-```powershell
-.\ver_monitor.ps1 -Tarea persecucion -Algoritmo ppo
-.\ver_monitor.ps1 -Tarea conduccion -Algoritmo a2c
-.\ver_monitor.ps1 -Tarea definicion -Algoritmo dqn
-```
-
-Ejecuta una sesión a la vez. `-Semilla 0`, `1` o `2` elige los pesos. La jerarquía
-carga automáticamente sus tres habilidades del mismo algoritmo y semilla.
-La reproducción es una demostración interactiva; no se guarda como benchmark.
-
-**Controles de la ventana oficial:**
-
-- Clic derecho en un lugar del campo → **Drop Ball** para reubicar el balón.
-- Clic derecho → **Free Kick Left/Right** para crear otra situación de juego.
-- **Referee → Change Playmode → play_on** para volver a juego activo si cambiaste
-  el modo del árbitro. El reposicionamiento del balón cambia el objetivo observado
-  por la política de persecución; no reentrena la red.
-- **View** permite inspeccionar información adicional de los jugadores.
-
-**Controles en la terminal PowerShell que lanzó el programa:** `p` pausa o
-reanuda la física, `n` avanza un ciclo cuando está en pausa, `r` reinicia el
-episodio y `q` cierra. En Linux se confirman estas letras con Enter. Mientras
-está congelado, los comandos del monitor se procesan al reanudar. Usa los controles
-de reproducción del monitor para archivos grabados; no equivalen a pausar el
-servidor en vivo. El episodio se reinicia dos segundos después de terminar.
-
-Para condiciones iniciales exactas y cambios de rivales/velocidades durante
-la reproducción:
-
-```powershell
-.\ver_monitor.ps1 -Tarea persecucion -Algoritmo ppo -Configuracion escenarios/monitor_cambiante.json
-```
-
-Edita ese JSON: `inicial.posiciones` admite atacante, compañero, balón, defensor
-y arquero; `velocidad_balon` fija `[vx,vy]`; `condiciones.defensor` admite
-`perseguir`, `patrulla` o `quieto`. `cambios` programa modificaciones por ciclo
-físico, desde 0. Si el episodio termina antes, los cambios posteriores no se
-ejecutan. El arrastre del monitor puede mover la cámara: no se presenta como
-un editor arbitrario de posiciones de todos los jugadores.
-
-Cada sesión genera `runs/monitor/<fecha>/partida.rcg`, con el formato oficial.
-Para repetirla con el monitor oficial (sin volver a ejecutar la política):
-
-```powershell
-.\.venv\Scripts\python.exe -m robocup_rl.monitor --replay runs/monitor/RUTA_DE_SESION/partida.rcg
-```
-
-En otra PC, instala el monitor dentro de Ubuntu WSL con:
-
-```powershell
-wsl -d Ubuntu -- bash scripts/setup_monitor.sh
-```
-
-Se compila la revisión oficial `42848cdee2cb230cd215ec9875dc06aa31f99aa9`.
-Necesitas WSLg funcional para la ventana gráfica. La instalación con Qt5 sigue
-el [README oficial de rcssmonitor](https://github.com/rcsoccersim/rcssmonitor).
-
-### Animación del notebook de Jeffrey (alternativa opcional)
-
-Abre `notebooks/visualizacion_p2_jeffrey.ipynb` en VS Code y selecciona el kernel
-**RoboCup P2 (CUDA)**. Conserva el campo de `draw_pitch` y la animación paso a
-paso del notebook P1, conectados a las políticas P2 y al estado real UDP.
-La fuente y el commit exactos están documentados en el notebook y en
-`src/robocup_rl/visual_jeffrey.py`. Se amplió el encuadre para ver todo el arco.
-
-También puedes abrirlo en JupyterLab desde PowerShell:
-
-```powershell
-cd D:\2026_2_CS\RL\PROYECTO\rl_robocup_jerarquico
-.\ver_notebook.ps1
-```
-
-En otra instalación, prepara primero las dependencias y el kernel:
-
-```powershell
-.\.venv\Scripts\python.exe -m pip install -e ".[notebooks]"
-.\.venv\Scripts\python.exe -m ipykernel install --user --name robocup-p2 --display-name "RoboCup P2 (CUDA)"
-```
-
-Ejecuta las celdas en orden. Cambia `TAREA`, `ALGORITMO` y `SEMILLA` para elegir
-un modelo. `INICIAL` establece posiciones, velocidad del balón y conducta de los
-rivales; `CAMBIOS` programa perturbaciones durante el episodio.
-`PASO_A_PASO=True` permite avanzar con Enter manteniendo congelada la física
-mientras decides. `ZONA` dibuja y mide una región adicional; no cambia el objetivo
-que aprendió la red ni produce reentrenamiento. Para persecución, mover el balón
-sí cambia la posición del objetivo observado por la política.
-
-Los frames, parámetros y trayectorias se guardan en `runs/demo_jeffrey/`, separados
-de los resultados del benchmark. Esta demostración utiliza el puerto 6500.
-
-### Visualización rápida desde terminal
-
-Elige un modelo terminado. Por ejemplo, tras la campaña:
-
-```powershell
-$M='subtareas/persecucion/ppo/resultados/pbrs/2v1/seed_0/final.zip'
-.\.venv\Scripts\python.exe -m robocup_rl.evaluar --task persecucion --algo ppo --model $M --episodes 3 --render
-```
-
-Para entrenar explícitamente el meta-controlador:
-
-```powershell
-$P='subtareas/persecucion/ppo/resultados/pbrs/2v1/seed_0/final.zip'
-$C='subtareas/conduccion/ppo/resultados/pbrs/2v1/seed_0/final.zip'
-$D='subtareas/definicion/ppo/resultados/pbrs/2v1/seed_0/final.zip'
-.\.venv\Scripts\python.exe -m robocup_rl.ejecutar --task global --algo ppo --steps 1200 --skills $P $C $D --skill-algo ppo --output global/jerarquico/ppo/resultados/manual
-.\.venv\Scripts\python.exe -m robocup_rl.evaluar --task global --algo ppo --model global/jerarquico/ppo/resultados/manual/final.zip --skills $P $C $D --episodes 3 --render
-```
-
-El meta-controlador **selecciona una habilidad**, no sus acciones primitivas.
-Mantiene la habilidad durante 8 ciclos, vuelve a observar y decide de nuevo.
-No sustituye silenciosamente modelos ausentes por heurísticas.
-La política plana elige entre las 13 acciones primitivas y se entrena con
-`--task plana` sobre los mismos escenarios y recompensa global.
-
-Evaluación final, heurística y comparación:
-
-```powershell
-.\.venv\Scripts\python.exe -m robocup_rl.evaluar --task plana --episodes 200 --seed 10000 --output informe/heuristica_2v1.json
-.\.venv\Scripts\python.exe -m robocup_rl.comparar RUTA/evaluacion_jerarquica.json informe/heuristica_2v1.json
-.\.venv\Scripts\python.exe -m robocup_rl.graficar
-```
-
-`evaluation.json` registra cada episodio, tasa de éxito, **tasa de gol separada**,
-retorno de recompensa base e intervalo Wilson. Capturar el balón no cuenta como
-gol. Comparar también con la evaluación de la política plana. Un resultado
-aislado no demuestra superioridad sobre tres semillas. El simulador upstream
-19 inicializa su RNG físico por tiempo y no expone `server::random_seed` en la
-CLI: las semillas de NumPy/PyTorch y reinicios sí se controlan; no se promete
-reproducción bit a bit ni emparejamiento exacto de ruido físico entre políticas.
-
-## 7. BC con tus demostraciones humanas (al volver)
-
-La interacción se hace **paso a paso**: ves el campo y escribes el número de
-acción en PowerShell. Mientras eliges, el servidor y su watchdog se congelan;
-no hace falta contestar rápido. `q` guarda los datos disponibles y sale.
-
-```powershell
-.\.venv\Scripts\python.exe -m robocup_rl.imitacion collect --task persecucion --expert human --episodes 5 --dataset data/humanos/persecucion.npz
-.\.venv\Scripts\python.exe -m robocup_rl.imitacion bc --task persecucion --dataset data/humanos/persecucion.npz --epochs 30 --output subtareas/persecucion/bc/resultados/policy
-```
-
-BC minimiza entropía cruzada sobre la **misma política PPO/A2C**. Puedes iniciar
-desde un modelo RL añadiendo `--model RUTA/final.zip --algo ppo`. Para BC desde
-cero omite `--model`. El crítico todavía debe aprender durante el ajuste con RL.
-Repite cambiando la subtarea por `conduccion` y `definicion`; cada una tiene su
-dataset/esquema de acciones propio. `--scenario` debe coincidir con los datos.
-
-Ajuste fino tras BC:
-
-```powershell
-.\.venv\Scripts\python.exe -m robocup_rl.ejecutar --task persecucion --algo ppo --resume subtareas/persecucion/bc/resultados/policy.zip --steps 10000 --output subtareas/persecucion/bc/resultados/finetuning
-```
-
-## 8. DAgger con experta humana
-
-```powershell
-.\.venv\Scripts\python.exe -m robocup_rl.imitacion dagger --task persecucion --expert human --model subtareas/persecucion/bc/resultados/policy.zip --dataset data/humanos/persecucion.npz --rounds 3 --episodes 5 --beta 0.2 --output subtareas/persecucion/dagger/resultados/policy
-```
-
-La aprendiz visita estados con su política y solicita tu etiqueta **antes** de
-actuar. En DAgger ejecuta la etiqueta experta con probabilidad beta y la acción
-de la aprendiz en los demás casos. Agrega los datos de todas las rondas y vuelve
-a ajustar la política. DAgger requiere `--model`; no se anuncia como DAgger una
-simple recolección de demostraciones. Para ensayos sin persona puedes usar
-`--expert heuristic`, siempre guardado como origen heurístico.
-
-## 9. Baseline P1, PBRS y verificaciones
-
-```powershell
-.\.venv\Scripts\python.exe -m robocup_rl.baseline --steps 10000 --seed 0 --output runs/baseline/seed_0
-.\.venv\Scripts\python.exe scripts/pbrs_ablation.py
-.\.venv\Scripts\python.exe -m pytest -q
-.\.venv\Scripts\python.exe scripts/smoke.py
-```
-
-El baseline conserva la idea de P1 (MC first-visit, 4 distancias x 5 orientaciones,
-4 acciones), pero se **reentrena** en el MDP oficial. No se transfieren cifras de
-su simulador cinemático como si fueran resultados de este entorno. La prueba
-algebraica PBRS muestra un bucle que recompensa `naive` sin acercarse al objetivo;
-las ablaciones reales requieren `campana --ablations`.
-
-La justificación matemática está en [informe/METODOLOGIA.md](informe/METODOLOGIA.md).
-El resumen verificable de pruebas está en [informe/VERIFICACION.json](informe/VERIFICACION.json).
-`scripts/smoke.py` prueba tres algoritmos por habilidad y tres meta-controladores;
-en DQN usa 600 pasos para incluir actualizaciones después del warm-up de 500.
-
-## 10. Docker: ejecución principal
-
-La configuración base reproduce el monitor oficial en CPU, con salida gráfica
-por noVNC. La variante `docker-compose.gpu.yml` habilita CUDA de forma explícita.
-El entrenamiento no se inicia al pedir visualizar: usa el perfil `training`.
-Los comandos completos están en [docker/README.md](docker/README.md).
-
-## Referencias y procedencia
-
-- [Lab 4 de FabricioChavez](https://github.com/FabricioChavez/rl_lab4_final_fabricio):
-  organización modular, código común, algoritmos y resultados separados.
-- [Proyecto 1 del grupo 02](https://github.com/jeffreymonjacastro/grupo-02-proyecto-rl):
-  notebook de persecución MC y protocolo UDP. Su informe contiene plantilla,
-  por lo que no se asumen resultados experimentales que no estén acreditados.
-- Enunciado P2 del curso DS5345 2026-II, páginas 1–5, y slides S10A/S11A/S13B
-  proporcionados localmente; no se republican esos PDFs en este repositorio.
-- [Servidor oficial](https://github.com/rcsoccersim/rcssserver), commit
-  `ce870013f2c6b31b9e93774abb2822c2f346c287`.
-- [Manual oficial del servidor](https://rcsoccersim.readthedocs.io/en/latest/soccerserver.html)
-  y [protocolo del entrenador](https://rcsoccersim.readthedocs.io/en/latest/coach.html).
-- [Stable-Baselines3](https://stable-baselines3.readthedocs.io/en/master/):
-  implementación de DQN, PPO y A2C; se usan sus pérdidas y checkpoints originales.
-
-El módulo `visual_jeffrey.py` adapta `draw_pitch` del notebook de P1, con su fuente
-y commit identificados. El entorno P2, entrenamiento y adaptador de políticas
-se implementan aquí; las copias completas de los repositorios de referencia
-permanecen fuera del repositorio publicado.
+Para visualizar, abre tú [el monitor oficial en el navegador](http://localhost:6080/vnc.html?autoconnect=true&resize=scale).
+La configuración base usa CPU; CUDA usa además `docker-compose.gpu.yml`.
+Docker no está validado mediante una construcción completa en esta PC porque su daemon está apagado.
+Los loops de entrenamiento/continuación, evaluación sin ventana y carga de PTH sí se comprobaron con el servidor real.

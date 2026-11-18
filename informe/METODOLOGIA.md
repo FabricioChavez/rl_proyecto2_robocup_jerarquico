@@ -55,8 +55,8 @@ el término adicional no depende de las decisiones posteriores:
 `Q*_shaped(s,a) = Q*_base(s,a) - Phi(s)`. El argmax y la política óptima se
 conservan bajo los supuestos anteriores. Premiar solo el desplazamiento positivo
 del balón no tiene esa propiedad y puede premiar oscilaciones sin progreso neto.
-`scripts/pbrs_ablation.py` reproduce ese contraejemplo; `--ablations` prepara
-experimentos de aprendizaje reales con none/PBRS/naive.
+Las ablaciones se ejecutan con `python proyecto.py entrenar --shaping none`,
+`--shaping pbrs` y `--shaping naive`, usando `--corrida` diferentes para conservar cada experimento.
 
 Las recompensas de una opción se acumulan con descuento primitivo. Puesto que
 la duración es fija en 8 ciclos salvo al terminar el episodio, el meta-controlador
@@ -64,35 +64,42 @@ usa `gamma_meta = gamma^8`. Así se conserva la identidad telescópica de PBRS.
 
 ## Algoritmos
 
-Se usa Stable-Baselines3 2.7.1, con red MLP 128x128 en CUDA. DQN implementa
+PPO, A2C y DQN se implementan directamente en PyTorch, sin Stable Baselines3.
+El loop propio esta en `src/modelo/entrenamiento.py`; las perdidas en `arquitecturas/`,
+GAE en `ventajas.py` y replay en `replay.py`. Se usa una MLP 128x128 en CUDA. DQN implementa
 replay, red objetivo y target `r + gamma * max_a Q_target(s',a)`; no se presenta
 como Double DQN. Buffer 50 000, batch 128, warm-up 500, actualización cada cuatro
 decisiones, sincronización objetivo cada 500. PPO: clipping 0.2, GAE lambda .95,
 rollouts 200, batch 100 y cinco épocas. A2C: rollouts 100 y lambda .95.
 PPO/A2C usan entropía .01. Learning rate compartido 3e-4.
 
-La versión tabular es una nueva implementación MC first-visit con 20 estados y
-cuatro acciones inspirada en P1, reentrenada en el entorno actual; no acredita
-igualdad de dificultad ni de resultados con el simulador antiguo.
+PPO usa Adam y A2C RMSprop. Las ventajas GAE separan terminal verdadero de truncacion,
+y no se propagan entre episodios. La red objetivo DQN no recibe gradientes.
+[Formulas y mapa de implementacion](../src/modelo/README.md).
+
+Los 45 entrenamientos anteriores se hicieron con SB3 y quedan bajo `sb3_semilla_N`.
+La campana propia empieza desde pesos aleatorios en `semilla_N`; sus resultados no se mezclan
+con los historicos. Los ensayos cortos solo comprueban funcionamiento y no forman parte de la campana.
+La comparacion tabular frente a P1 queda pendiente; no hay un baseline tabular activo en esta estructura.
 
 ## Imitación pendiente de demostraciones humanas
 
 BC: entropía cruzada `-log pi(a_experta|s)` sobre la misma política PPO/A2C.
 DAgger: etiquetado de estados visitados por la aprendiz, mezcla de acciones con
 probabilidad beta de experta, agregación de datos y nuevo ajuste por ronda.
-Se conserva el origen `human` o `heuristic` por muestra. Tras BC/DAgger se retoma
-el entrenamiento RL con `--resume`, permitiendo aprender también el crítico.
+Se conserva el origen `humano` o `heuristico` por muestra. Tras BC/DAgger se retoma
+el entrenamiento RL con `--continuar`, permitiendo aprender también el crítico.
 La interfaz humana congela el proceso del servidor mientras espera la etiqueta.
 
 ## Validez experimental
 
 Separar entrenamiento de evaluación: semillas iniciales 0/1/2 para entrenar,
 estados iniciales 10000+episodio para probar. Cada evaluación reinicia el episodio
-y no actualiza pesos. Se guardan al menos 200 episodios por modelo en la campaña.
-La tasa de gol y los retornos base se calculan sin sumar shaping. Los intervalos
-Wilson describen incertidumbre binomial dentro de una evaluación. El bootstrap
-de diferencias no sustituye replicación entre semillas ni corrige múltiples
-comparaciones. No se afirma éxito si los resultados no lo demuestran.
+y no actualiza pesos. La evaluacion completa se lanza aparte, con 200 episodios por modelo/escenario;
+no se considera realizada para una corrida nueva hasta que exista su CSV.
+La tasa de gol y los retornos base se calculan sin sumar shaping. Las graficas muestran dispersion entre semillas, sin mezclar modelos historicos con propios.
+La incertidumbre estadistica formal y la comparacion frente a P1 siguen pendientes.
+No se afirma exito si los resultados no lo demuestran.
 
 El RNG físico de upstream rcssserver 19 se inicializa con el reloj y la opción
 CLI `random_seed` no está habilitada. La repetibilidad está controlada en el

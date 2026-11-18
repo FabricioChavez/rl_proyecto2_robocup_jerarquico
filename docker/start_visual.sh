@@ -8,7 +8,7 @@ export XDG_SESSION_TYPE=x11
 unset WAYLAND_DISPLAY
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/robocup-xdg}"
 workspace="${ROBOCUP_WORKSPACE:-/workspace}"
-mkdir -p "$XDG_RUNTIME_DIR" "$workspace/runs/desktop"
+mkdir -p "$XDG_RUNTIME_DIR" "$workspace/resultados/logs/desktop"
 chmod 700 "$XDG_RUNTIME_DIR"
 pids=()
 cleanup() {
@@ -19,18 +19,18 @@ cleanup() {
 trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
-Xvfb "$DISPLAY" -screen 0 1280x900x24 -nolisten tcp > "$workspace/runs/desktop/xvfb.log" 2>&1 &
+Xvfb "$DISPLAY" -screen 0 1280x900x24 -nolisten tcp > "$workspace/resultados/logs/desktop/xvfb.log" 2>&1 &
 pids+=("$!")
 ready=0
 for ((attempt=0; attempt<100; attempt++)); do
   if xdpyinfo -display "$DISPLAY" >/dev/null 2>&1; then ready=1; break; fi
   sleep .1
 done
-if [[ "$ready" != 1 ]]; then echo 'Xvfb no pudo iniciar; revisa runs/desktop/xvfb.log' >&2; exit 1; fi
-openbox > "$workspace/runs/desktop/openbox.log" 2>&1 &
+if [[ "$ready" != 1 ]]; then echo 'Xvfb no pudo iniciar; revisa resultados/logs/desktop/xvfb.log' >&2; exit 1; fi
+openbox > "$workspace/resultados/logs/desktop/openbox.log" 2>&1 &
 pids+=("$!")
 x11vnc -display "$DISPLAY" -rfbport 5900 -localhost -forever -shared -nopw \
-  > "$workspace/runs/desktop/vnc.log" 2>&1 &
+  > "$workspace/resultados/logs/desktop/vnc.log" 2>&1 &
 pids+=("$!")
 python3 - <<'PY'
 import socket,time
@@ -43,15 +43,15 @@ for attempt in range(100):
         pass
     time.sleep(.1)
 else:
-    raise SystemExit('El servidor VNC no pudo iniciar; revisa runs/desktop/vnc.log')
+    raise SystemExit('El servidor VNC no pudo iniciar; revisa resultados/logs/desktop/vnc.log')
 PY
 websockify --web=/usr/share/novnc/ 6080 localhost:5900 \
-  > "$workspace/runs/desktop/websockify.log" 2>&1 &
+  > "$workspace/resultados/logs/desktop/websockify.log" 2>&1 &
 pids+=("$!")
 echo 'Monitor oficial disponible en http://localhost:6080/vnc.html?autoconnect=true&resize=scale'
-echo 'Abre tú esa dirección en el navegador. El servidor, las políticas y rcssmonitor corren dentro del contenedor.'
+echo 'Abre tÃº esa direcciÃ³n en el navegador. El servidor, las polÃ­ticas y rcssmonitor corren dentro del contenedor.'
 if [[ "$#" == 0 ]]; then
-  set -- python -u -m robocup_rl.monitor --task global --algo ppo --no-keyboard
+  set -- python -u proyecto.py ver --tarea jerarquico --algoritmo ppo --sin-teclado
 fi
 "$@" &
 policy_pid=$!
