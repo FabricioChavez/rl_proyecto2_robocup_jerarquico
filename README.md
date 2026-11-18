@@ -171,7 +171,80 @@ las tres habilidades con las mismas semillas. La rama humana se agrega después.
 
 ## 6. Probar y visualizar
 
-### Visualización basada en el notebook de Jeffrey (recomendada)
+### Monitor oficial de RoboCup: rcssmonitor (opción principal)
+
+En esta PC ya está instalado **rcssmonitor 19.0.1** en Ubuntu WSL y utiliza
+WSLg para mostrar la ventana en Windows. Abre **PowerShell** en la raíz:
+
+```powershell
+cd D:\2026_2_CS\RL\PROYECTO\rl_robocup_jerarquico
+.\ver_monitor.ps1 -Tarea global -Algoritmo ppo
+```
+
+Se abre el monitor oficial, carga el modelo y ejecuta las acciones con CUDA a
+10 ciclos por segundo. El servidor usa el puerto 6500, separado de la campaña.
+Repite episodios hasta cerrar el monitor o pulsar `q` en la terminal.
+
+Para ver una habilidad o cambiar el algoritmo:
+
+```powershell
+.\ver_monitor.ps1 -Tarea persecucion -Algoritmo ppo
+.\ver_monitor.ps1 -Tarea conduccion -Algoritmo a2c
+.\ver_monitor.ps1 -Tarea definicion -Algoritmo dqn
+```
+
+Ejecuta una sesión a la vez. `-Semilla 0`, `1` o `2` elige los pesos. La jerarquía
+carga automáticamente sus tres habilidades del mismo algoritmo y semilla.
+La reproducción es una demostración interactiva; no se guarda como benchmark.
+
+**Controles de la ventana oficial:**
+
+- Clic derecho en un lugar del campo → **Drop Ball** para reubicar el balón.
+- Clic derecho → **Free Kick Left/Right** para crear otra situación de juego.
+- **Referee → Change Playmode → play_on** para volver a juego activo si cambiaste
+  el modo del árbitro. El reposicionamiento del balón cambia el objetivo observado
+  por la política de persecución; no reentrena la red.
+- **View** permite inspeccionar información adicional de los jugadores.
+
+**Controles en la terminal PowerShell que lanzó el programa:** `p` pausa o
+reanuda la física, `n` avanza un ciclo cuando está en pausa, `r` reinicia el
+episodio y `q` cierra. En Linux se confirman estas letras con Enter. Mientras
+está congelado, los comandos del monitor se procesan al reanudar. Usa los controles
+de reproducción del monitor para archivos grabados; no equivalen a pausar el
+servidor en vivo. El episodio se reinicia dos segundos después de terminar.
+
+Para condiciones iniciales exactas y cambios de rivales/velocidades durante
+la reproducción:
+
+```powershell
+.\ver_monitor.ps1 -Tarea persecucion -Algoritmo ppo -Configuracion escenarios/monitor_cambiante.json
+```
+
+Edita ese JSON: `inicial.posiciones` admite atacante, compañero, balón, defensor
+y arquero; `velocidad_balon` fija `[vx,vy]`; `condiciones.defensor` admite
+`perseguir`, `patrulla` o `quieto`. `cambios` programa modificaciones por ciclo
+físico, desde 0. Si el episodio termina antes, los cambios posteriores no se
+ejecutan. El arrastre del monitor puede mover la cámara: no se presenta como
+un editor arbitrario de posiciones de todos los jugadores.
+
+Cada sesión genera `runs/monitor/<fecha>/partida.rcg`, con el formato oficial.
+Para repetirla con el monitor oficial (sin volver a ejecutar la política):
+
+```powershell
+.\.venv\Scripts\python.exe -m robocup_rl.monitor --replay runs/monitor/RUTA_DE_SESION/partida.rcg
+```
+
+En otra PC, instala el monitor dentro de Ubuntu WSL con:
+
+```powershell
+wsl -d Ubuntu -- bash scripts/setup_monitor.sh
+```
+
+Se compila la revisión oficial `42848cdee2cb230cd215ec9875dc06aa31f99aa9`.
+Necesitas WSLg funcional para la ventana gráfica. La instalación con Qt5 sigue
+el [README oficial de rcssmonitor](https://github.com/rcsoccersim/rcssmonitor).
+
+### Animación del notebook de Jeffrey (alternativa opcional)
 
 Abre `notebooks/visualizacion_p2_jeffrey.ipynb` en VS Code y selecciona el kernel
 **RoboCup P2 (CUDA)**. Conserva el campo de `draw_pitch` y la animación paso a

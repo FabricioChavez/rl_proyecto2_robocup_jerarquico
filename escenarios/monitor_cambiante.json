@@ -1,0 +1,11 @@
+{
+  "inicial": {
+    "posiciones": {"atacante": [-10, 0], "balon": [0, 0], "defensor": [23, 3], "arquero": [50, 0]},
+    "velocidad_balon": [0.15, -0.08],
+    "condiciones": {"defensor": "perseguir", "potencia_defensor": 100, "arquero_activo": true}
+  },
+  "cambios": {
+    "6": {"posiciones": {"balon": [4, -5]}, "velocidad_balon": [0.4, 0.2], "condiciones": {"defensor": "patrulla", "potencia_defensor": 60}},
+    "25": {"posiciones": {"defensor": [15, 2]}, "condiciones": {"defensor": "perseguir", "potencia_defensor": 100}}
+  }
+}
