@@ -85,7 +85,7 @@
       "device": "cuda"
     }
   ],
-  "unit_tests": 4,
+  "unit_tests": 8,
   "bc_and_dagger_heuristic_test": "passed",
   "human_demonstrations": "pending",
   "docker_build": "not_tested",
@@ -93,5 +93,16 @@
   "gymnasium_contract": "passed (1v1)",
   "human_pause_resume": "passed against WSL systemd server",
   "render": "inspected",
-  "background_training": "CUDA campaign, 10000 steps per skill; 3 seeds; 2v1; evaluation queued"
+  "background_training": "CUDA campaign, 10000 steps per skill; 3 seeds; 2v1; evaluation queued",
+  "bundled_models_cpu_load": 15,
+  "neutral_team_runtime": "Attack / Rival, verified in new RCG",
+  "docker": {
+    "compose_cpu": "validated",
+    "compose_cuda": "validated",
+    "novnc_http": "200",
+    "websocket_rfb": "RFB 003.008",
+    "image_build": "not run: Docker daemon stopped",
+    "mac_arm64": "not run",
+    "cuda_container": "not run"
+  }
 }

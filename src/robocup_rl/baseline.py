@@ -9,7 +9,7 @@ from .comun.servidor import local_server
 
 
 def discretize(env):
-    distance,angle=relative(env.world.players[('Emilia',1)],env.world.ball)
+    distance,angle=relative(env.world.players[('Attack',1)],env.world.ball)
     d=int(np.digitize(distance,[.8,3,8]))
     a=0 if abs(angle)<=15 else (1 if -60<=angle<-15 else (2 if 15<angle<=60 else (3 if angle<-60 else 4)))
     return d,a

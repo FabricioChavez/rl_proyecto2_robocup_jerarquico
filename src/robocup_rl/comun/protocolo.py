@@ -100,8 +100,8 @@ class World:
 class Server:
     """Un servidor exclusivo por entorno. Percepción global privilegiada del trainer."""
     def __init__(self, host='127.0.0.1', port=6000):
-        self.attacker = UDP(host, port, '(init Emilia (version 18))')
-        self.mate = UDP(host, port, '(init Emilia (version 18))')
+        self.attacker = UDP(host, port, '(init Attack (version 18))')
+        self.mate = UDP(host, port, '(init Attack (version 18))')
         self.goalie = UDP(host, port, '(init Rival (version 18) (goalie))')
         self.defender = UDP(host, port, '(init Rival (version 18))')
         self.clients = [self.attacker, self.mate, self.goalie, self.defender]
@@ -123,8 +123,8 @@ class Server:
         self.trainer.send('(change_mode before_kick_off)')
         x = {'persecucion': -10, 'conduccion': 12, 'definicion': 38, 'global': -10, 'plana': -10}[task]
         y = float(rng.uniform(-6, 6))
-        self.move('p Emilia 1', x, y, float(rng.uniform(-70,70)) if task in ('persecucion','global','plana') else 0)
-        self.move('p Emilia 2', x+7, y-9 if scenario == '2v1' else -30)
+        self.move('p Attack 1', x, y, float(rng.uniform(-70,70)) if task in ('persecucion','global','plana') else 0)
+        self.move('p Attack 2', x+7, y-9 if scenario == '2v1' else -30)
         self.move('p Rival 1', 50, float(rng.uniform(-4,4)), 180)
         self.move('p Rival 2', 23 if task != 'definicion' else 32, y+3, 180)
         self.move('b', x+float(rng.uniform(4,10)) if task in ('persecucion','global','plana') else x+0.5, y, 0)

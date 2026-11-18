@@ -6,7 +6,7 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 
-from .algoritmos import load_model
+from .algoritmos import load_model,checkpoint_path
 from .campana import location
 from .comun.acciones import TASKS, LABELS, approach, relative
 from .comun.entorno import SoccerEnv
@@ -33,7 +33,7 @@ class DemoEnv(SoccerEnv):
 
 def aplicar_escenario(env,settings):
     """Intervenciones explícitas del entrenador; no son goles ni datos de entrenamiento."""
-    objects={'balon':'b','atacante':'p Emilia 1','companero':'p Emilia 2',
+    objects={'balon':'b','atacante':'p Attack 1','companero':'p Attack 2',
              'defensor':'p Rival 2','arquero':'p Rival 1'}
     if 'condiciones' in settings:
         env.conditions.update(settings['condiciones'])
@@ -63,10 +63,10 @@ def dibujar(env,history,title,zona=None):
         ax.plot(points[:,0],points[:,1],'-',color='#00e676',linewidth=2,label='Trayectoria atacante')
     for key,p in env.world.players.items():
         team,number=key
-        label=('Atacante' if number==1 else 'Compañero') if team=='Emilia' else ('Arquero' if number==1 else 'Defensor')
-        ax.plot(*p[:2],'o',markersize=12,color=('#1976d2' if team=='Emilia' else '#ef5350'),label=label)
+        label=('Atacante' if number==1 else 'Compañero') if team=='Attack' else ('Arquero' if number==1 else 'Defensor')
+        ax.plot(*p[:2],'o',markersize=12,color=('#1976d2' if team=='Attack' else '#ef5350'),label=label)
         ax.text(p[0],p[1]+1.7,label,color='white',fontsize=8,ha='center')
-    player=env.world.players[('Emilia',1)]
+    player=env.world.players[('Attack',1)]
     angle=np.radians(player[4])
     ax.arrow(*player[:2],2*np.cos(angle),2*np.sin(angle),head_width=.9,color='yellow')
     ball=env.world.ball
@@ -89,9 +89,9 @@ def animar_politica(tarea='persecucion',algoritmo='ppo',semilla=0,escenario='2v1
         raise ValueError('Pasos entre 1 y 200; cada >=1; delay >=0')
     if zona and (len(zona)!=3 or zona[2]<=0):
         raise ValueError('Zona: [x,y,radio_positivo]')
-    model_path=location(tarea,algoritmo,semilla,scenario=escenario)/'final.zip'
+    model_path=checkpoint_path(tarea,algoritmo,semilla,escenario)
     model=load_model(algoritmo,model_path)
-    skills=[load_model(algoritmo,location(t,algoritmo,semilla,scenario=escenario)/'final.zip') for t in TASKS] if tarea=='global' else None
+    skills=[load_model(algoritmo,checkpoint_path(t,algoritmo,semilla,escenario)) for t in TASKS] if tarea=='global' else None
     history=[]; rows=[]; option=0; remaining=0
     changes=cambios or {}
     output=Path(salida); output.mkdir(parents=True,exist_ok=True)
@@ -117,7 +117,7 @@ def animar_politica(tarea='persecucion',algoritmo='ppo',semilla=0,escenario='2v1
                     active=tarea; policy=model
                 action=int(policy.predict(obs,deterministic=True)[0])
                 _,_,terminated,truncated,info=env._cycle(action,active)
-                history.append(env.world.players[('Emilia',1)][:2].tolist())
+                history.append(env.world.players[('Attack',1)][:2].tolist())
                 hit=bool(zona and np.linalg.norm(env.world.ball[:2]-zona[:2])<=zona[2])
                 rows.append(dict(paso=step+1,habilidad=active,accion=LABELS[active][action],
                                  balon=env.world.ball.tolist(),zona=hit,goal=bool(info['goal']),success=bool(info['success'])))

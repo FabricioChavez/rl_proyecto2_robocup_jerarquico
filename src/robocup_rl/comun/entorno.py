@@ -27,20 +27,20 @@ class SoccerEnv(gym.Env):
 
     def observe(self):
         w = self.world
-        p = w.players[('Emilia',1)]
+        p = w.players[('Attack',1)]
         features = []
         for target in (w.ball, [52.5,-7.01], [52.5,7.01], w.players[('Rival',2)],
-                       w.players[('Emilia',2)], w.players[('Rival',1)]):
+                       w.players[('Attack',2)], w.players[('Rival',1)]):
             dist, angle = relative(p, target)
             features.extend([dist / 105, np.sin(np.radians(angle)), np.cos(np.radians(angle))])
         features.extend([p[0]/52.5, p[1]/34, p[2], p[3], np.sin(np.radians(p[4])), np.cos(np.radians(p[4])),
                          w.ball[2]/3, w.ball[3]/3, self.server.stamina/8000, self.t/self.horizon])
-        for key in [('Rival',2), ('Rival',1), ('Emilia',2)]:
+        for key in [('Rival',2), ('Rival',1), ('Attack',2)]:
             features.extend(w.players[key][2:4])
         return np.asarray(features, dtype=np.float32)
 
     def potential(self):
-        p, ball = self.world.players[('Emilia',1)], self.world.ball
+        p, ball = self.world.players[('Attack',1)], self.world.ball
         if self.task == 'persecucion':
             return -relative(p, ball)[0] / 10
         if self.task == 'conduccion':
@@ -62,7 +62,7 @@ class SoccerEnv(gym.Env):
         dc = kick(d, [-52.5,0],100) if relative(d,w.ball)[0] < 0.8 else approach(d,w.ball)
         gd, ga = relative(g,w.ball)
         gc = f'(catch {ga:.3f})' if gd < 1.7 and w.ball[0] > 36 and abs(w.ball[1]) < 20 else approach(g,[49,np.clip(w.ball[1],-6,6)],70)
-        mate = w.players[('Emilia',2)]
+        mate = w.players[('Attack',2)]
         if self.scenario == '2v1':
             mc = kick(mate,[52.5, -5 if g[1] > 0 else 5],100) if relative(mate,w.ball)[0] < 0.8 else approach(mate, [min(w.ball[0]+5,44), -10 if w.ball[1] > 0 else 10],70)
         else:
@@ -75,13 +75,13 @@ class SoccerEnv(gym.Env):
         self.server.tick([command(task, action, self.world), *self.opponents()])
         self.t += 1
         w = self.world
-        p, b = w.players[('Emilia',1)], w.ball
+        p, b = w.players[('Attack',1)], w.ball
         # Crossing interpolation prevents missed goals at high kick velocity.
         crossed = self.last_ball[0] < 52.5 <= b[0]
         y_cross = self.last_ball[1] + (b[1]-self.last_ball[1])*(52.5-self.last_ball[0])/max(b[0]-self.last_ball[0],1e-9) if crossed else 100
         goal = bool(crossed and abs(y_cross) < 7.01)
         captured = relative(p,b)[0] < 0.8
-        mate_captured = self.scenario == '2v1' and relative(w.players[('Emilia',2)],b)[0] < 0.8
+        mate_captured = self.scenario == '2v1' and relative(w.players[('Attack',2)],b)[0] < 0.8
         success = captured if self.task == 'persecucion' else (bool(b[0] > 34 and (captured or mate_captured)) if self.task == 'conduccion' else goal)
         out = bool(abs(b[0]) >= 52.5 or abs(b[1]) > 34)
         lost = bool(relative(w.players[('Rival',2)],b)[0] < 0.65 or relative(w.players[('Rival',1)],b)[0] < 0.65)
@@ -134,7 +134,7 @@ class SoccerEnv(gym.Env):
         ax.plot([-52.5,52.5,52.5,-52.5,-52.5],[-34,-34,34,34,-34],color='white')
         ax.plot([52.5,52.5],[-7.01,7.01],color='yellow',linewidth=5)
         for (team,number), p in w.players.items():
-            ax.plot(*p[:2], 'o', color='cyan' if team == 'Emilia' else 'red', markersize=10)
+            ax.plot(*p[:2], 'o', color='cyan' if team == 'Attack' else 'red', markersize=10)
             ax.text(p[0],p[1]+1,f'{team} {number}',fontsize=8)
         ax.plot(*w.ball[:2],'wo',markersize=6)
         plt.pause(0.03)

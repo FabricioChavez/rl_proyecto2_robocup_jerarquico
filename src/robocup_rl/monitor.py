@@ -10,7 +10,7 @@ import subprocess
 import time
 import uuid
 
-from .algoritmos import load_model
+from .algoritmos import load_model,checkpoint_path
 from .campana import location
 from .comun.acciones import TASKS,LABELS,approach,relative
 from .comun.entorno import SoccerEnv
@@ -39,7 +39,7 @@ class InteractiveEnv(SoccerEnv):
 
 def apply_scene(env,scene):
     env.conditions.update(scene.get('condiciones',{}))
-    objects={'balon':'b','atacante':'p Emilia 1','companero':'p Emilia 2','defensor':'p Rival 2','arquero':'p Rival 1'}
+    objects={'balon':'b','atacante':'p Attack 1','companero':'p Attack 2','defensor':'p Rival 2','arquero':'p Rival 1'}
     for name,point in scene.get('posiciones',{}).items():
         x,y=map(float,point[:2])
         if abs(x)>51.5 or abs(y)>33:
@@ -112,6 +112,7 @@ def main():
     p.add_argument('--task',choices=[*TASKS,'global','plana'],default='global')
     p.add_argument('--algo',choices=['ppo','a2c','dqn'],default='ppo')
     p.add_argument('--seed',type=int,default=0)
+    p.add_argument('--device',default=os.getenv('ROBOCUP_DEVICE','cuda'))
     p.add_argument('--scenario',choices=['1v1','2v1'],default='2v1')
     p.add_argument('--port',type=int,default=6500)
     p.add_argument('--fps',type=float,default=10)
@@ -130,11 +131,14 @@ def main():
         with official_monitor(args.port,output,args.offscreen,args.replay) as gui:
             gui.wait()
         return
-    model=load_model(args.algo,location(args.task,args.algo,args.seed,scenario=args.scenario)/'final.zip')
-    skills=[load_model(args.algo,location(t,args.algo,args.seed,scenario=args.scenario)/'final.zip') for t in TASKS] if args.task=='global' else None
+    model=load_model(args.algo,checkpoint_path(args.task,args.algo,args.seed,args.scenario),args.device)
+    skills=[load_model(args.algo,checkpoint_path(t,args.algo,args.seed,args.scenario),args.device) for t in TASKS] if args.task=='global' else None
     scene=json.loads(args.scene.read_text(encoding='utf-8')) if args.scene else {}
     (output/'config.json').write_text(json.dumps(dict(arguments=vars(args),scene=scene,scope='interactive_not_benchmark'),default=str,indent=2),encoding='utf-8')
-    print('Monitor oficial. Teclas en ESTA terminal: p pausa/reanuda, n un ciclo estando en pausa, r reinicia, q sale.',flush=True)
+    if not args.no_keyboard:
+        print('Monitor oficial. Teclas en ESTA terminal: p pausa/reanuda, n un ciclo estando en pausa, r reinicia, q sale.',flush=True)
+    else:
+        print('Monitor oficial. Controles del árbitro disponibles en la ventana; termina la sesión cerrando el monitor.',flush=True)
     print('En el monitor: clic derecho -> Drop Ball / modos del árbitro. Menú Referee para PlayOn.',flush=True)
     print(f'Grabación oficial RCG y datos: {output}',flush=True)
     with local_server(args.seed,args.port,game_log_dir=output) as (host,port):
@@ -148,7 +152,7 @@ def main():
                     env.reset(seed=args.seed+episode)
                     apply_scene(env,scene.get('inicial',{}))
                     option=0; remaining=0; episode+=1
-                    print(f'Episodio {episode} | {args.task}/{args.algo} | CUDA',flush=True)
+                    print(f'Episodio {episode} | {args.task}/{args.algo} | {model.device}',flush=True)
                     while gui.poll() is None:
                         command=keyboard_command(not args.no_keyboard)
                         if command=='q':quit_requested=True; break

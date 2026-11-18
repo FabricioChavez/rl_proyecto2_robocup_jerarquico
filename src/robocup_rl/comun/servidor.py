@@ -10,7 +10,7 @@ from pathlib import Path
 
 @contextlib.contextmanager
 def local_server(seed=0, port=6100, game_log_dir=None):
-    unit = f'robocup-emilia-{port}'
+    unit = f'robocup-rl-{port}'
     args = ['rcssserver', f'server::port={port}', f'server::coach_port={port+1}',
             f'server::olcoach_port={port+2}',
             'server::synch_mode=true', 'server::coach_w_referee=true',

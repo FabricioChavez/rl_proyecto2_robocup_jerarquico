@@ -1,5 +1,6 @@
 """Campaña secuencial CUDA; se detiene ante errores, sin entrenamientos ocultos fallidos."""
 import argparse
+import os
 import json
 import subprocess
 import sys
@@ -22,6 +23,7 @@ if __name__=='__main__':
     p.add_argument('--port',type=int,default=6200)
     p.add_argument('--ablations',action='store_true')
     p.add_argument('--evaluate',type=int,default=200)
+    p.add_argument('--device',default=os.getenv('ROBOCUP_DEVICE','cuda'))
     args=p.parse_args()
     Path('runs').mkdir(exist_ok=True)
     def run(module,*arguments):
@@ -40,7 +42,7 @@ if __name__=='__main__':
         task,algo,seed=job['task'],job['algo'],job['seed']
         output=Path(job['output'])
         Path('runs/campaign_status.json').write_text(json.dumps(dict(state='running',index=index,total=len(jobs),current=job),indent=2))
-        common=['--task',task,'--algo',algo,'--seed',seed,'--port',args.port,'--scenario',args.scenario]
+        common=['--task',task,'--algo',algo,'--seed',seed,'--port',args.port,'--scenario',args.scenario,'--device',args.device]
         skills=[str(location(t,algo,seed,'pbrs',args.scenario)/'final.zip') for t in TASKS]
         extra=['--skills',*skills,'--skill-algo',algo] if task=='global' else []
         try:
@@ -60,7 +62,7 @@ if __name__=='__main__':
                 eval_extra=['--skills',*skills] if task=='global' else []
                 run('robocup_rl.evaluar','--task',task,'--algo',algo,'--model',output/'final.zip',
                     '--port',args.port,'--seed',10000,'--scenario',args.scenario,'--episodes',args.evaluate,
-                    '--output',output/'evaluation.json',*eval_extra)
+                    '--output',output/'evaluation.json','--device',args.device,*eval_extra)
         except BaseException as exc:
             Path('runs/campaign_status.json').write_text(json.dumps(dict(state='failed',stage='evaluation',index=index,current=job,error=repr(exc)),indent=2))
             raise

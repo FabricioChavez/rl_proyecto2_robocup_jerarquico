@@ -1,4 +1,5 @@
 import argparse
+import os
 import json
 from pathlib import Path
 import numpy as np
@@ -54,9 +55,10 @@ if __name__=='__main__':
     p.add_argument('--scenario',choices=['1v1','2v1'],default='2v1')
     p.add_argument('--output',type=Path,default=Path('runs/evaluation.json'))
     p.add_argument('--render',action='store_true')
+    p.add_argument('--device',default=os.getenv('ROBOCUP_DEVICE','cuda'))
     args=p.parse_args()
-    skills=[load_model(args.algo,path) for path in args.skills] if args.skills else None
-    model=load_model(args.algo,args.model) if args.model else None
+    skills=[load_model(args.algo,path,args.device) for path in args.skills] if args.skills else None
+    model=load_model(args.algo,args.model,args.device) if args.model else None
     with local_server(args.seed,args.port) as (host,port):
         env=SoccerEnv(task=args.task,host=host,port=port,scenario=args.scenario,shaping='none',horizon=200,skills=skills)
         try:

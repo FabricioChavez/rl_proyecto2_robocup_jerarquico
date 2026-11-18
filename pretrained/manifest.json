@@ -1,0 +1,127 @@
+{
+  "scenario": "2v1",
+  "seed": 0,
+  "models": [
+    {
+      "task": "persecucion",
+      "algorithm": "ppo",
+      "path": "pretrained/2v1/seed_0/persecucion/ppo.zip",
+      "steps": 10000,
+      "training_device": "cuda",
+      "sha256": "9b9963aabb4c7d943e872a734b91ca538cb687c2d2de2bd15c382ec0209b9f3b"
+    },
+    {
+      "task": "persecucion",
+      "algorithm": "a2c",
+      "path": "pretrained/2v1/seed_0/persecucion/a2c.zip",
+      "steps": 10000,
+      "training_device": "cuda",
+      "sha256": "140a59b1efa1373ba01230e10d0c0441891e5efa9351b858e98a7dc0edf618bc"
+    },
+    {
+      "task": "persecucion",
+      "algorithm": "dqn",
+      "path": "pretrained/2v1/seed_0/persecucion/dqn.zip",
+      "steps": 10000,
+      "training_device": "cuda",
+      "sha256": "34e6cf840e45fcef2da19dc184f1fd9c18cbf0b4ae1bbf3df8b2672edd7202fc"
+    },
+    {
+      "task": "conduccion",
+      "algorithm": "ppo",
+      "path": "pretrained/2v1/seed_0/conduccion/ppo.zip",
+      "steps": 10000,
+      "training_device": "cuda",
+      "sha256": "9e1cc29dfba69d4a9670faa3e97e13b45c16c36645ac889108e2971070508be9"
+    },
+    {
+      "task": "conduccion",
+      "algorithm": "a2c",
+      "path": "pretrained/2v1/seed_0/conduccion/a2c.zip",
+      "steps": 10000,
+      "training_device": "cuda",
+      "sha256": "9023e4df86cf3367631a40a6ff712ea1a39319fb78c2b3d8fbf3b6200b6e55a6"
+    },
+    {
+      "task": "conduccion",
+      "algorithm": "dqn",
+      "path": "pretrained/2v1/seed_0/conduccion/dqn.zip",
+      "steps": 10000,
+      "training_device": "cuda",
+      "sha256": "3fa3ace097f427a451ca17b6401b20438eedf47ef9500c7506941e41f4807b52"
+    },
+    {
+      "task": "definicion",
+      "algorithm": "ppo",
+      "path": "pretrained/2v1/seed_0/definicion/ppo.zip",
+      "steps": 10000,
+      "training_device": "cuda",
+      "sha256": "609edc653c0a78e57f66aea5b9ed2de164044e1d157e4ff61d35e649f1d702a1"
+    },
+    {
+      "task": "definicion",
+      "algorithm": "a2c",
+      "path": "pretrained/2v1/seed_0/definicion/a2c.zip",
+      "steps": 10000,
+      "training_device": "cuda",
+      "sha256": "83159ad158992ee1417f2547ac7d4f1ebb413643dfd8f3991216d954fd82bb71"
+    },
+    {
+      "task": "definicion",
+      "algorithm": "dqn",
+      "path": "pretrained/2v1/seed_0/definicion/dqn.zip",
+      "steps": 10000,
+      "training_device": "cuda",
+      "sha256": "73942d709d0e7e83e12855f2d1f6a4953bc2601e9263a5e1981a60641c71e01c"
+    },
+    {
+      "task": "global",
+      "algorithm": "ppo",
+      "path": "pretrained/2v1/seed_0/global/ppo.zip",
+      "steps": 1200,
+      "training_device": "cuda",
+      "sha256": "dfa4eb228f4f0e40d6187e7d7b94222531e0820646ce09265b3e18f059b6900a"
+    },
+    {
+      "task": "global",
+      "algorithm": "a2c",
+      "path": "pretrained/2v1/seed_0/global/a2c.zip",
+      "steps": 1200,
+      "training_device": "cuda",
+      "sha256": "3512e387330dadd4cd61c4d56717a8a05eec4c3eb2ba35cb708e5d138b216409"
+    },
+    {
+      "task": "global",
+      "algorithm": "dqn",
+      "path": "pretrained/2v1/seed_0/global/dqn.zip",
+      "steps": 1200,
+      "training_device": "cuda",
+      "sha256": "0000f1f9edca45e12bfa7c6e7be8f1de6f94c82e88e79fb63ebe6373af4bbcb3"
+    },
+    {
+      "task": "plana",
+      "algorithm": "ppo",
+      "path": "pretrained/2v1/seed_0/plana/ppo.zip",
+      "steps": 10000,
+      "training_device": "cuda",
+      "sha256": "abfc29c3ec940ece4c9742adf5af614f93f9cf54ac3735fdfdfa91f957840b8f"
+    },
+    {
+      "task": "plana",
+      "algorithm": "a2c",
+      "path": "pretrained/2v1/seed_0/plana/a2c.zip",
+      "steps": 10000,
+      "training_device": "cuda",
+      "sha256": "1cecc41baf16370cfff662b97976b90bf0362374b082a2b6b090ce1ff625fb68"
+    },
+    {
+      "task": "plana",
+      "algorithm": "dqn",
+      "path": "pretrained/2v1/seed_0/plana/dqn.zip",
+      "steps": 10000,
+      "training_device": "cuda",
+      "sha256": "120f7eef3438eb1857676033e5bf07492620bba5d781f1b660a8886dc7c916c8"
+    }
+  ],
+  "performance": "See evaluation files; completion is not evidence of task success"
+}

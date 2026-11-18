@@ -23,6 +23,6 @@
 | Sustentación/video | Pendiente |
 
 Las instrucciones del enunciado se usan como especificación académica; el alcance
-autorizado por Emilia en esta tarea es implementar las tres habilidades, dejar
+autorizado por la usuaria en esta tarea es implementar las tres habilidades, dejar
 BC/DAgger humano preparados, publicar el repositorio e iniciar el entrenamiento
 autónomo con CUDA. No se fabrican resultados para completar casillas pendientes.

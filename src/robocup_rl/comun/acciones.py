@@ -31,7 +31,7 @@ def kick(player, target, power):
 
 
 def command(task, action, world):
-    p = world.players[('Emilia', 1)]
+    p = world.players[('Attack', 1)]
     if task == 'plana':
         if action < 4:
             return command('persecucion', action, world)
@@ -43,13 +43,13 @@ def command(task, action, world):
     if task == 'conduccion':
         if action < 3:
             return ['(dash 100)', '(turn 35)', '(turn -35)'][action]
-        target = world.players[('Emilia', 2)] if action == 6 else [52.5, [0, -12, 12][action-3]]
+        target = world.players[('Attack', 2)] if action == 6 else [52.5, [0, -12, 12][action-3]]
         return kick(p, target, 45 if action == 6 else 12)
     return kick(p, [52.5, [-6, -3, 0, 3, 6][action]], 100)
 
 
 def heuristic(task, world):
-    p = world.players[('Emilia', 1)]
+    p = world.players[('Attack', 1)]
     distance, angle = relative(p, world.ball)
     if task == 'global':
         return 0 if distance > 0.8 else (2 if p[0] > 35 else 1)

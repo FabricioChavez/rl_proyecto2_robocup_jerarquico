@@ -37,7 +37,7 @@ def parser():
     p.add_argument('--port', type=int, default=6000)
     p.add_argument('--scenario', choices=['1v1','2v1'], default='2v1')
     p.add_argument('--shaping', choices=['none','pbrs','naive'], default='pbrs')
-    p.add_argument('--device', default='cuda')
+    p.add_argument('--device', default=os.getenv('ROBOCUP_DEVICE','cuda'))
     p.add_argument('--output', type=Path)
     p.add_argument('--skills', nargs=3, type=Path, metavar=('PURSUIT','DRIBBLE','SHOOT'))
     p.add_argument('--skill-algo', choices=['ppo','a2c','dqn'], default='ppo')

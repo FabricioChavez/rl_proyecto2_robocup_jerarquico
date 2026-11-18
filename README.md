@@ -8,6 +8,46 @@ no se sustituye su física por una simulación casera.
 
 Repositorio público: <https://github.com/FabricioChavez/rl_proyecto2_robocup_jerarquico>
 
+## Inicio principal: Docker (Windows, Linux y macOS)
+
+Todo se ejecuta **dentro del contenedor Linux**: servidor, políticas y monitor
+oficial `rcssmonitor`. El navegador solo muestra la ventana oficial por noVNC;
+no hay un panel de fútbol creado aparte. No necesitas instalar Python, Qt, WSL
+ni X11 en el host para este camino. Necesitas Docker Engine/Desktop en ejecución
+y Docker Compose v2. Docker Desktop administra su propia VM cuando corresponde.
+
+Desde una terminal situada en la raíz del repositorio, para probar con CPU:
+
+```bash
+docker compose up --build visual
+```
+
+Abre tú [el monitor local](http://localhost:6080/vnc.html?autoconnect=true&resize=scale).
+La construcción inicial descarga dependencias y compila ambos programas oficiales.
+Se incluyen 15 modelos de semilla 0 / escenario 2v1 en `pretrained/`; una copia
+nueva del repo puede reproducirlos sin reentrenamiento. Para las otras semillas
+se necesitan sus resultados locales o entrenarlas.
+
+En Windows con backend WSL2 y NVIDIA, o Linux con NVIDIA Container Toolkit,
+para usar CUDA en lugar de CPU:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.gpu.yml up --build visual
+```
+
+macOS usa la variante CPU. Esta imagen no utiliza CUDA ni la GPU Metal del Mac.
+CPU permite probar los mismos pesos entrenados con CUDA; el entrenamiento puede
+ser más lento. La configuración gráfica evita depender del escritorio del host.
+
+Para detener: `Ctrl+C` y luego `docker compose down`. Para más modelos, escenarios,
+pausa y entrenamiento, consulta [la guía Docker](docker/README.md).
+
+**Validación:** Compose CPU/GPU validado con Compose v2.24.3; inferencia real en
+CPU, equipos neutrales y conexión HTTP/WebSocket de noVNC comprobados. La imagen
+completa aún no se pudo construir: el daemon Docker local está apagado. No se
+afirma haber probado el build en macOS/ARM64 ni el runtime CUDA en contenedor.
+Los pasos nativos de Windows + WSL que siguen quedan como alternativa local.
+
 ## 1. Estado y alcance
 
 - Implementados el entorno real, las tres subtareas, DQN/PPO/A2C, jerarquía,
@@ -16,7 +56,7 @@ Repositorio público: <https://github.com/FabricioChavez/rl_proyecto2_robocup_je
   Son pasos, no episodios. La campaña usa semillas 0, 1 y 2.
 - Para el meta-controlador se usan **1 200 decisiones de 8 ciclos**: como máximo
   9 600 ciclos físicos. Las opciones terminan antes si finaliza el episodio.
-- Las demostraciones humanas quedan pendientes para Emilia. No se generan
+- Las demostraciones humanas quedan pendientes para la experta humana. No se generan
   etiquetas humanas artificiales. Los ensayos automáticos de imitación usan
   un controlador **heurístico**, identificado en cada muestra.
 - **No se afirma haber alcanzado 80% de goles ni superioridad estadística.**
@@ -155,7 +195,7 @@ Para detenerla y sus procesos descendientes, utiliza el PID de `background.json`
 ```powershell
 $run = Get-Content runs\background.json | ConvertFrom-Json
 taskkill /PID $run.pid /T /F
-wsl -d Ubuntu -u root -- systemctl stop robocup-emilia-6200
+wsl -d Ubuntu -u root -- systemctl stop robocup-rl-6200
 ```
 
 Si la detienes forzosamente, se conserva el último checkpoint pero no el replay
@@ -374,17 +414,12 @@ El resumen verificable de pruebas está en [informe/VERIFICACION.json](informe/V
 `scripts/smoke.py` prueba tres algoritmos por habilidad y tres meta-controladores;
 en DQN usa 600 pasos para incluir actualizaciones después del warm-up de 500.
 
-## 10. Docker: un comando alternativo
+## 10. Docker: ejecución principal
 
-Con Docker Desktop abierto, backend WSL2 y GPU NVIDIA habilitada:
-
-```powershell
-docker compose up --build
-```
-
-Incluye el servidor oficial y la campaña CUDA en la misma imagen, con resultados
-montados localmente. En esta sesión Docker Desktop estaba detenido; el camino
-probado es **PowerShell + WSL**, y la imagen Docker queda sin validación de build.
+La configuración base reproduce el monitor oficial en CPU, con salida gráfica
+por noVNC. La variante `docker-compose.gpu.yml` habilita CUDA de forma explícita.
+El entrenamiento no se inicia al pedir visualizar: usa el perfil `training`.
+Los comandos completos están en [docker/README.md](docker/README.md).
 
 ## Referencias y procedencia
 
