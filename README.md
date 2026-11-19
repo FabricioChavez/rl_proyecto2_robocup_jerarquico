@@ -3,6 +3,8 @@
 Una entrada: **`python proyecto.py <comando>`**. Modelos únicamente `.pth`.
 Los parámetros se pasan por argumentos; no hay archivos de configuración de modelos.
 
+**[Tabla de comandos para copiar y pegar](COMANDOS.md)** — visualizar modelos, cambiar escenarios, evaluar, entrenar y generar el informe con Docker.
+
 **PPO, A2C y DQN están implementados directamente en PyTorch. No se importa ni se necesita Stable Baselines3.**
 El código de cada actualización está en [PPO](src/modelo/arquitecturas/ppo.py),
 [A2C](src/modelo/arquitecturas/a2c.py) y [DQN](src/modelo/arquitecturas/dqn.py).

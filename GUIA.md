@@ -1,5 +1,7 @@
 # Guía de uso — paso a paso
 
+Para consultar comandos listos para copiar: **[tabla de comandos](COMANDOS.md)**.
+
 ## 1. Ubicarse y elegir cómo ejecutar
 
 Esta copia está en `D:\2026_2_CS\RL\PROYECTO\rl_robocup_jerarquico`.
