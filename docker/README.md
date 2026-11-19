@@ -15,12 +15,14 @@ La base CPU es la alternativa para macOS y máquinas sin NVIDIA.
 Solo se montan `resultados/`, `informe/` y `datos/`. Los pesos existentes son PTH.
 El servidor y el monitor se ejecutan dentro del mismo contenedor; no hay puertos UDP dinámicos expuestos.
 El navegador es únicamente la pantalla remota del monitor oficial.
-La etapa base y la descarga de paquetes Debian por HTTPS se comprobaron dentro de Docker.
-La construcción completa sigue pendiente de validación.
+La imagen CPU completa se construyo y se probo con Docker Desktop el 19 de noviembre de 2026.
+Se comprobaron entrenamiento y continuacion PPO/A2C/DQN, evaluacion, graficas, informe y monitor oficial.
+La variante CUDA no forma parte de esta validacion. Ver [evidencia](../informe/VALIDACION_DOCKER.md).
 
 ## Si falla la construcción
 
-Si Compose muestra `changes out of order` en Windows, construye la misma imagen directamente:
+El Dockerfile copia la carpeta `docker/` completa para evitar el error `changes out of order`
+de versiones antiguas de Compose en Windows. Tambien puedes construir la misma imagen directamente:
 
 ```bash
 docker build -t robocup-p2:cpu -f docker/Dockerfile .
@@ -34,3 +36,6 @@ falló una descarga de dependencias. El Dockerfile usa HTTPS en las dos etapas,
 cinco reintentos, timeout de 30 segundos y desactiva el pipelining HTTP.
 Conserva la verificación de certificados. Vuelve a ejecutar el comando de construcción.
 Estos ajustes permiten reintentar fallos transitorios; no sustituyen una conexión de red disponible.
+
+El compilador instala `libfl-dev`, necesario para `FlexLexer.h`. El arranque visual
+comprueba la disponibilidad TCP de VNC sin exigir un banner en 0,2 segundos.

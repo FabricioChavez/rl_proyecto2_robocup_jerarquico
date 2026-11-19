@@ -233,7 +233,8 @@ recoleccion de transiciones y loops de optimizacion estan en el repositorio.
 Los tres metodos completaron ensayos cortos con CUDA contra rcssserver real y se evaluaron sin ventanas.
 Estas comprobaciones no demuestran convergencia ni buena tasa de gol.
 Los 45 PTH historicos conservan las salidas numericas de los modelos anteriores.
-La etapa base Docker y las descargas Debian por HTTPS se validaron. La construccion completa sigue pendiente.
+La imagen Docker CPU completa se construyo y se valido con entrenamiento, continuacion, evaluacion, graficas y monitor oficial.
+Consulta [la evidencia Docker](informe/VALIDACION_DOCKER.md). La variante CUDA queda fuera de esa validacion.
 
 ## 12. Campana propia y progreso
 

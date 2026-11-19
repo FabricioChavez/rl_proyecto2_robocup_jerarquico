@@ -36,9 +36,10 @@ python3 - <<'PY'
 import socket,time
 for attempt in range(100):
     try:
-        with socket.create_connection(('127.0.0.1',5900),timeout=.2) as connection:
-            if connection.recv(12).startswith(b'RFB '):
-                break
+        # Check the listening socket. libvncserver may wait for protocol sniffing
+        # before sending its RFB banner; a .2-second read falsely fails startup.
+        with socket.create_connection(('127.0.0.1',5900),timeout=2):
+            break
     except OSError:
         pass
     time.sleep(.1)
@@ -49,7 +50,7 @@ websockify --web=/usr/share/novnc/ 6080 localhost:5900 \
   > "$workspace/resultados/logs/desktop/websockify.log" 2>&1 &
 pids+=("$!")
 echo 'Monitor oficial disponible en http://localhost:6080/vnc.html?autoconnect=true&resize=scale'
-echo 'Abre tÃº esa direcciÃ³n en el navegador. El servidor, las polÃ­ticas y rcssmonitor corren dentro del contenedor.'
+echo 'Abre esa direccion en el navegador. El servidor, las politicas y rcssmonitor corren dentro del contenedor.'
 if [[ "$#" == 0 ]]; then
   set -- python -u proyecto.py ver --tarea jerarquico --algoritmo ppo --sin-teclado
 fi

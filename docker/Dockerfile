@@ -12,7 +12,7 @@ RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.l
 FROM debian-base AS simulator-build
 ARG BUILD_JOBS=4
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential cmake git ca-certificates libboost-all-dev flex bison \
+    build-essential cmake git ca-certificates libboost-all-dev flex libfl-dev bison \
     zlib1g-dev qtbase5-dev && rm -rf /var/lib/apt/lists/*
 RUN git clone https://github.com/rcsoccersim/rcssserver.git /opt/rcssserver \
     && git -C /opt/rcssserver checkout ce870013f2c6b31b9e93774abb2822c2f346c287 \
@@ -46,7 +46,9 @@ COPY pyproject.toml ./
 COPY src ./src
 RUN python -m pip install --no-cache-dir 'torch>=2.3' --index-url ${TORCH_INDEX_URL} \
     && python -m pip install --no-cache-dir .
-COPY docker/start_visual.sh /opt/robocup/start_visual.sh
+# Copy the parent directory: old Windows Compose versions fail to send a nested
+# individual file without its parent ("changes out of order").
+COPY docker/ /opt/robocup/
 COPY proyecto.py ./proyecto.py
 EXPOSE 6080
 CMD ["bash", "/opt/robocup/start_visual.sh"]

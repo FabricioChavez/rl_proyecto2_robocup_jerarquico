@@ -9,7 +9,7 @@
 - Las gráficas de aprendizaje, pérdidas, retorno, éxito, goles y duración se generan desde CSV.
 - La comparación completa frente al baseline P1, las ablaciones, la superioridad estadística y el informe IEEE final siguen pendientes.
 - Completar entrenamiento no demuestra que se alcance el objetivo de 80 % de goles.
-- Docker CPU/CUDA y noVNC están configurados; su construcción completa sigue sin validar por daemon apagado.
+- Docker CPU validado: imagen completa, entrenamiento/continuacion, evaluacion, graficas, informe y monitor oficial por noVNC. La imagen CUDA sigue pendiente de construccion y prueba.
 
 La metodología formal está en [METODOLOGIA.md](METODOLOGIA.md).
 Los resultados se vuelcan con `python proyecto.py informe`.
