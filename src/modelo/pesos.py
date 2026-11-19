@@ -133,15 +133,47 @@ def guardar_checkpoint(model, path, tarea, algoritmo):
     torch.save(data, path)
 
 
+# Al ampliar el conjunto de acciones, cada salida nueva parte como copia de una antigua
+# parecida y ambas se reparten su probabilidad (sesgo - log k): la política inicial no cambia.
+COPIA_ACCIONES = {"definicion": {20: 5, 21: 2, 22: 2}}
+
+
+def ampliar_acciones(data, tarea, n):
+    """Añade salidas al actor de un checkpoint PPO/A2C con menos acciones que `n`.
+    El optimizador se reinicia (sus momentos tienen la forma antigua)."""
+    if data["algoritmo"] == "dqn":
+        raise ValueError("Ampliar acciones solo está implementado para PPO/A2C")
+    state = dict(data["politica"])
+    w, b = state["action_net.weight"].clone(), state["action_net.bias"].clone()
+    viejas = w.shape[0]
+    copia = COPIA_ACCIONES.get(tarea, {})
+    fuente = [copia.get(i) for i in range(viejas, n)]
+    w_nueva = torch.zeros(n, w.shape[1], dtype=w.dtype)
+    b_nueva = torch.zeros(n, dtype=b.dtype)
+    w_nueva[:viejas], b_nueva[:viejas] = w, b
+    for i, f in enumerate(fuente, start=viejas):
+        if f is not None:
+            w_nueva[i], b_nueva[i] = w[f], b[f]
+    for f in {f for f in fuente if f is not None}:
+        grupo = [f] + [i for i, g in enumerate(fuente, start=viejas) if g == f]
+        b_nueva[grupo] -= float(np.log(len(grupo)))
+    state["action_net.weight"], state["action_net.bias"] = w_nueva, b_nueva
+    data = dict(data, politica=state)
+    data.pop("optimizador", None)
+    print(f"Acciones ampliadas de {viejas} a {n} (copias {copia}); optimizador reiniciado", flush=True)
+    return data
+
+
 def restaurar_entrenamiento(model, data):
     model.policy.load_state_dict(data["politica"])
     settings = [
         {k: v for k, v in group.items() if k != "params"}
         for group in model.policy.optimizer.param_groups
     ]
-    model.policy.optimizer.load_state_dict(data["optimizador"])
-    for group, values in zip(model.policy.optimizer.param_groups, settings):
-        group.update(values)
+    if "optimizador" in data:
+        model.policy.optimizer.load_state_dict(data["optimizador"])
+        for group, values in zip(model.policy.optimizer.param_groups, settings):
+            group.update(values)
     model.origen_pesos = data.get(
         "origen_pesos", data.get("generador", "sb3_historico")
     )

@@ -31,3 +31,9 @@ resultados/modelo_weights/*/ppo/mixta/
 resultados/modelo_weights/conduccion/ddqn_dueling/
 resultados/modelo_weights/conduccion/mpdqn/
 scripts/__pycache__/
+# corridas intermedias o descartadas del currículo de definición
+resultados/modelo_weights/*/ppo/final3/
+resultados/modelo_weights/*/ppo/final2_ft/
+resultados/modelo_weights/definicion/ppo/curriculo_f1/
+resultados/modelo_weights/definicion/ppo/curriculo_f2/
+resultados/modelo_weights/definicion/ppo/curriculo_f3_largo/

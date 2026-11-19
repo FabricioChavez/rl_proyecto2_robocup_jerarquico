@@ -5,11 +5,14 @@ import time
 from copy import deepcopy
 import numpy as np
 import torch
+from entorno.acciones import N_ACTIONS
+from entorno.en_jerarquia import DefinicionEnJerarquia
 from entorno.robocup import SoccerEnv
 from entorno.servidor import local_server
 from rutas import carpeta, ruta_pesos
 from modelo.arquitecturas import crear_modelo
 from modelo.pesos import (
+    ampliar_acciones,
     cargar_politica,
     leer_checkpoint,
     arquitectura,
@@ -108,6 +111,7 @@ def aprender(model, env, args, logs, pesos):
                     base_reward=info.get("base_reward", reward),
                     retorno=info.get("base_return", episode_base),
                     pasos=model.num_timesteps,
+                    **({"fase": info["fase"]} if "fase" in info else {}),
                 ),
             )
             observation, _ = env.reset()
@@ -235,6 +239,8 @@ def ejecutar(args):
             raise ValueError(
                 "El checkpoint no corresponde a la tarea/algoritmo seleccionados"
             )
+        if arquitectura(checkpoint)[1] < N_ACTIONS[args.task]:
+            checkpoint = ampliar_acciones(checkpoint, args.task, N_ACTIONS[args.task])
         inferred = arquitectura(checkpoint)[2]
         if args.network and args.network != inferred:
             raise ValueError("--red no coincide con los pesos")
@@ -244,9 +250,13 @@ def ejecutar(args):
     args.reglas = args.reglas or (
         checkpoint.get("reglas", "clasicas") if checkpoint else "clasicas"
     )
+    # --coordinador: definición se entrena dentro de la jerarquía congelada.
+    en_jerarquia = args.task == "definicion" and getattr(args, "coordinator", None)
+    if en_jerarquia and not args.skills:
+        raise ValueError("--coordinador requiere --habilidades (persecución y conducción congeladas)")
     skills = (
         [
-            cargar_politica(None, path, args.device)
+            cargar_politica(None, path, "cpu" if en_jerarquia else args.device)
             for path in (
                 args.skills
                 or [
@@ -255,13 +265,13 @@ def ejecutar(args):
                 ]
             )
         ]
-        if args.task == "global"
+        if args.task == "global" or en_jerarquia
         else None
     )
     torch.set_num_threads(args.threads)
     with local_server(args.seed, args.port) as (host, port):
         env = SoccerEnv(
-            task=args.task,
+            task="global" if en_jerarquia else args.task,
             host=host,
             port=port,
             scenario=args.scenario,
@@ -277,7 +287,11 @@ def ejecutar(args):
             reglas=args.reglas,
             ciclos_posesion=args.possession_cycles,
             potencia_defensor=getattr(args, "defender_power", 100),
+            curriculo=getattr(args, "curriculum", None),
+            traspasos=getattr(args, "handoffs", None),
         )
+        if en_jerarquia:
+            env = DefinicionEnJerarquia(env, cargar_politica(None, args.coordinator, "cpu"))
         try:
             model = crear_modelo(env, args)
             if checkpoint:

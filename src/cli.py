@@ -29,6 +29,13 @@ def comun(parser):
     parser.add_argument(
         "--ciclos-posesion", dest="possession_cycles", type=int, default=12
     )
+    parser.add_argument(
+        "--x-ventaja",
+        dest="advantage_x",
+        type=float,
+        help="Jerarquía: también ceder a definición desde esta x si el defensor ya quedó "
+        "detrás del balón (por defecto solo x > 36)",
+    )
 
 
 def entrenamiento(parser, campana=False):
@@ -132,6 +139,27 @@ def entrenamiento(parser, campana=False):
         type=int,
         default=100,
         help="Potencia con la que corre el defensor (0-100); usa la misma que al evaluar",
+    )
+    parser.add_argument(
+        "--curriculo-definicion",
+        dest="curriculum",
+        choices=["auto", "0", "1", "2", "3", "4"],
+        help="Definición: auto = fases 1->2->3 por tasa de gol; 0 = zona de tiro; "
+        "1 = lejos y mal orientado; 2 = balón vivo y defensor delante; 3 = traspasos reales; "
+        "4 = lejos (x 25-38) con el defensor ya superado",
+    )
+    parser.add_argument(
+        "--traspasos",
+        dest="handoffs",
+        type=Path,
+        help="CSV de estados de traspaso (scripts/diagnostico_jerarquia.py --grabar-traspasos)",
+    )
+    parser.add_argument(
+        "--coordinador",
+        dest="coordinator",
+        type=Path,
+        help="Definición: entrenar dentro de la jerarquía con este coordinador congelado "
+        "(requiere --habilidades; solo se usan persecución y conducción)",
     )
     parser.add_argument(
         "--checkpoint-cada",
@@ -477,6 +505,10 @@ def main(argv=None):
     if args.command in ('entrenar-conduccion', 'lote-conduccion', 'evaluar-conduccion', 'graficar-conduccion', 'ver-conduccion'):
         from experimentos_conduccion import ejecutar
         return ejecutar(args)
+    if getattr(args, "advantage_x", None) is not None:
+        from entorno.robocup import SoccerEnv
+
+        SoccerEnv.X_VENTAJA = args.advantage_x
     if hasattr(args, "gamma") and not 0 < args.gamma <= 1:
         raise ValueError("--gamma debe estar en (0,1]")
     if hasattr(args, "task") and args.task is not None:

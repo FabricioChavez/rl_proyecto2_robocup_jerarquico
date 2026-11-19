@@ -611,13 +611,13 @@ def experto_conduccion(env):
 
 def experto_global(env, radio=5.0):
     """Experto programado del coordinador (opción 0/1/2). Persecución con el balón suelto
-    lejos; definición con el balón al pie en la zona de tiro (x > X_DEFINICION del
-    entorno, la misma beta(s) que termina conducción); si no, conducción."""
+    lejos; definición en la zona de traspaso del entorno (la misma beta(s) que termina
+    conducción: x > X_DEFINICION, o x > X_VENTAJA con el defensor superado); si no, conducción."""
     p = env.world.players[("Attack", 1)]
     d = relative(p, env.world.ball)[0]
     if d > radio:
         return 0
-    return 2 if (d <= env.RADIO_TIRO and p[0] > env.X_DEFINICION) else 1
+    return 2 if env.zona_traspaso() else 1
 
 
 EXPERTOS = {"conduccion": experto_conduccion, "global": experto_global}

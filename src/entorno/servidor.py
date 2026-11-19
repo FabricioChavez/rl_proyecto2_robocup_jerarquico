@@ -23,7 +23,9 @@ def local_server(seed=0, port=6100, game_log_dir=None):
         "server::text_logging=false",
         "server::synch_offset=1",
         "server::synch_micro_sleep=100",
-        "server::half_time=100000",
+        # half_time en segundos (x10 ciclos): 1e8 ciclos para que el partido no termine
+        # (time_over) en entrenamientos largos dentro de la jerarquía.
+        "server::half_time=10000000",
         "server::nr_normal_halfs=1",
     ]
     windows = platform.system() == "Windows"

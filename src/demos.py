@@ -13,9 +13,15 @@ W = "resultados/modelo_weights"
 
 CATALOGO = {
     # --- jerarquía completa (Vía A: coordinador sobre 3 habilidades congeladas)
-    "jerarquico": ("Sistema final: coordinador DAgger + ajuste fino PPO (47,0 % goles)",
-                   ["--tarea", "jerarquico", "--algoritmo", "ppo", "--corrida", "final",
-                    "--pesos", f"{W}/jerarquico/ppo/final_ft/final.pth"]),
+    "jerarquico": ("Mejor sistema: tiro lejano con ventaja + definición entrenada dentro de la "
+                   "jerarquía (65,0 % goles)",
+                   ["--tarea", "jerarquico", "--algoritmo", "ppo", "--corrida", "final4b",
+                    "--x-ventaja", "28"]),
+    "jerarquico_curriculo": ("Definición con currículo inverso + coordinador DAgger nuevo (51,5 %)",
+                             ["--tarea", "jerarquico", "--algoritmo", "ppo", "--corrida", "final2"]),
+    "jerarquico_informe": ("Sistema del informe: coordinador DAgger + ajuste fino PPO (47,0 %)",
+                           ["--tarea", "jerarquico", "--algoritmo", "ppo", "--corrida", "final",
+                            "--pesos", f"{W}/jerarquico/ppo/final_ft/final.pth"]),
     "jerarquico_dagger": ("Coordinador DAgger del experto programado (44,5 %)",
                           ["--tarea", "jerarquico", "--algoritmo", "ppo", "--corrida", "final"]),
     "jerarquico_bc": ("Coordinador solo BC del experto programado (41,0 %)",
@@ -57,6 +63,8 @@ CATALOGO = {
     "definicion_dagger": ("DAgger humano", ["--tarea", "definicion", "--algoritmo", "ppo", "--corrida", "humano"]),
     "definicion_dagger_rl": ("DAgger humano + PPO desde la zona de tiro (habilidad final)",
                              ["--tarea", "definicion", "--algoritmo", "ppo", "--corrida", "zona_tiro"]),
+    "definicion_lejano": ("Definición de 23 acciones entrenada dentro de la jerarquía (la de 'jerarquico')",
+                          ["--tarea", "definicion", "--algoritmo", "ppo", "--corrida", "lejano_jer"]),
     "definicion_dqn_zona": ("DAgger humano + Double DQN desde la zona de tiro",
                             ["--tarea", "definicion", "--algoritmo", "dqn", "--corrida", "zona_tiro"]),
     "definicion_ppo_ft": ("Imitación + ajuste PPO", ["--tarea", "definicion", "--algoritmo", "ppo", "--corrida", "sistema_ft"]),

@@ -5,7 +5,7 @@ TASKS = ("persecucion", "conduccion", "definicion")
 N_ACTIONS = {
     "persecucion": 12,
     "conduccion": 16,
-    "definicion": 20,
+    "definicion": 23,
     "global": 3,
     "plana": 13,
 }
@@ -49,6 +49,9 @@ BASE_CORRER = {"persecucion": 4, "conduccion": 8, "definicion": 12}
 for _task, _base in BASE_CORRER.items():
     assert len(LABELS[_task]) == _base
     LABELS[_task] += [f"correr {nombre}" for nombre in NOMBRES_DIRECCION]
+# 20-22 (después de correr): avanzar con el balón hacia el arco y tiros al palo lejos
+# del arquero. Al final para que los modelos de 20 salidas sigan siendo válidos.
+LABELS["definicion"] += ["avanzar al arco", "tiro palo lejos del arquero", "tiro lejos del arquero 4.5"]
 LABELS["plana"] = (
     LABELS["persecucion"][:4] + LABELS["conduccion"][3:7] + LABELS["definicion"][:5]
 )
@@ -82,7 +85,7 @@ def correr_campo(player, angulo):
 
 def command(task, action, world, reglas="clasicas"):
     p = world.players[("Attack", 1)]
-    if task in BASE_CORRER and action >= BASE_CORRER[task]:
+    if task in BASE_CORRER and BASE_CORRER[task] <= action < BASE_CORRER[task] + 8:
         return correr_campo(p, DIRECCIONES_CAMPO[action - BASE_CORRER[task]])
     if task == "plana":
         if action < 4:
@@ -120,6 +123,15 @@ def command(task, action, world, reglas="clasicas"):
         return kick(p, [52.5, [0, -12, 12][action - 3]], 12)
     if action in (5, 6, 7):
         return ["(dash 100)", "(turn 35)", "(turn -35)"][action - 5]
+    if action == 20:
+        # Toque de potencia 30 hacia el centro del arco (como el drible de conducción):
+        # se acerca con el balón y el tiro siguiente suma la velocidad que ya lleva.
+        return kick(p, [52.5, 0], 30)
+    if action in (21, 22):
+        # Al lado del arco contrario al arquero, a 6,3 m o 4,5 m del centro.
+        arquero = world.players[("Rival", 1)]
+        lado = -1.0 if arquero[1] >= 0 else 1.0
+        return kick(p, [52.5, lado * (6.3 if action == 21 else 4.5)], 100)
     return kick(p, [52.5, OBJETIVOS_TIRO[action]], 100)
 
 

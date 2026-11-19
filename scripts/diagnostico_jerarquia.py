@@ -59,12 +59,15 @@ def main():
     a.add_argument("--x-tiro", type=float, default=35.0)
     a.add_argument("--radio-persecucion", type=float, default=5.0)
     a.add_argument("--radio-tiro", type=float, default=1.085)
+    a.add_argument("--x-ventaja", type=float, help="ceder también desde esta x con el defensor superado")
     a.add_argument("--episodios", type=int, default=50)
     a.add_argument("--fuerza-defensor", type=int, default=70)
     a.add_argument("--horizonte", type=int, default=200)
     a.add_argument("--puerto", type=int, default=7100)
     a.add_argument("--semilla-prueba", type=int, default=10000)
     a.add_argument("--salida", type=Path)
+    a.add_argument("--grabar-traspasos", type=Path,
+                   help="CSV donde guardar el estado cada vez que el coordinador cede a definición")
     args = a.parse_args()
 
     skills = [
@@ -80,7 +83,7 @@ def main():
         f"resultados/logs/diagnostico_jerarquia/{args.corrida}_{args.meta}_x{args.x_tiro:g}_r{args.radio_persecucion:g}_t{args.radio_tiro:g}_f{args.fuerza_defensor}.csv"
     )
     salida.parent.mkdir(parents=True, exist_ok=True)
-    filas, causas = [], Counter()
+    filas, causas, traspasos = [], Counter(), []
     with local_server(args.semilla_prueba, args.puerto) as (host, port):
         env = InteractiveEnv(
             task="global", host=host, port=port, scenario="2v1", skills=skills,
@@ -88,6 +91,7 @@ def main():
         )
         env.conditions = {}
         env.X_DEFINICION, env.RADIO_TIRO = args.x_tiro, args.radio_tiro
+        env.X_VENTAJA = args.x_ventaja
         try:
             for ep in range(args.episodios):
                 env.reset(seed=args.semilla_prueba + ep)
@@ -101,6 +105,8 @@ def main():
                         int(meta.predict(obs, deterministic=True)[0]) if meta
                         else meta_heuristica(env, args.x_tiro, args.radio_persecucion, args.radio_tiro)
                     )
+                    if args.grabar_traspasos and opcion == 2 and anterior != 2:
+                        traspasos.append(dict(episodio=ep, ciclo=env.t, **env.estado_traspaso()))
                     uso[TASKS[opcion]] += 1
                     cambios += int(anterior is not None and opcion != anterior)
                     anterior = opcion
@@ -124,6 +130,13 @@ def main():
         w = csv.DictWriter(f, fieldnames=list(filas[0]))
         w.writeheader()
         w.writerows(filas)
+    if args.grabar_traspasos and traspasos:
+        args.grabar_traspasos.parent.mkdir(parents=True, exist_ok=True)
+        with args.grabar_traspasos.open("w", newline="", encoding="utf-8") as f:
+            w = csv.DictWriter(f, fieldnames=list(traspasos[0]))
+            w.writeheader()
+            w.writerows(traspasos)
+        print(f"Traspasos a definición: {len(traspasos)} estados -> {args.grabar_traspasos}")
     n = len(filas)
     print(f"{args.corrida} meta={args.meta}: goles {causas['gol']}/{n} "
           f"| causas {dict(causas)} -> {salida}")
