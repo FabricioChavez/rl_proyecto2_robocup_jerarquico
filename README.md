@@ -70,5 +70,5 @@ docker compose up visual
 
 Para visualizar, abre tú [el monitor oficial en el navegador](http://localhost:6080/vnc.html?autoconnect=true&resize=scale).
 La configuración base usa CPU; CUDA usa además `docker-compose.gpu.yml`.
-Docker no está validado mediante una construcción completa en esta PC porque su daemon está apagado.
+La etapa base y las descargas APT por HTTPS se validaron en Docker; la construcción completa sigue pendiente.
 Los loops de entrenamiento/continuación, evaluación sin ventana y carga de PTH sí se comprobaron con el servidor real.

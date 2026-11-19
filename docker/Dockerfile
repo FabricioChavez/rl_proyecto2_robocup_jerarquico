@@ -1,4 +1,15 @@
-FROM python:3.11-slim-bookworm AS simulator-build
+FROM python:3.11-slim-bookworm AS debian-base
+# Share reliable package downloads between the compiler and runtime stages.
+# Keep certificate verification enabled; the Python base includes CA certificates.
+RUN sed -i 's|http://deb.debian.org|https://deb.debian.org|g' /etc/apt/sources.list.d/debian.sources \
+    && printf '%s\n' \
+       'Acquire::Retries "5";' \
+       'Acquire::http::Timeout "30";' \
+       'Acquire::https::Timeout "30";' \
+       'Acquire::http::Pipeline-Depth "0";' \
+       > /etc/apt/apt.conf.d/80-download-retries
+
+FROM debian-base AS simulator-build
 ARG BUILD_JOBS=4
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential cmake git ca-certificates libboost-all-dev flex bison \
@@ -17,7 +28,7 @@ RUN git clone https://github.com/rcsoccersim/rcssmonitor.git /opt/rcssmonitor \
     && cp /usr/local/bin/rcssserver /usr/local/bin/rcssmonitor /opt/runtime/bin/ \
     && cp -a /usr/local/lib/librcss* /opt/runtime/lib/
 
-FROM python:3.11-slim-bookworm
+FROM debian-base
 ARG TORCH_INDEX_URL=https://download.pytorch.org/whl/cpu
 ENV DEBIAN_FRONTEND=noninteractive PYTHONUNBUFFERED=1 ROBOCUP_DEVICE=cpu \
     DISPLAY=:99 QT_X11_NO_MITSHM=1 QT_XCB_GL_INTEGRATION=none

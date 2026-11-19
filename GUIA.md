@@ -233,7 +233,7 @@ recoleccion de transiciones y loops de optimizacion estan en el repositorio.
 Los tres metodos completaron ensayos cortos con CUDA contra rcssserver real y se evaluaron sin ventanas.
 Estas comprobaciones no demuestran convergencia ni buena tasa de gol.
 Los 45 PTH historicos conservan las salidas numericas de los modelos anteriores.
-La construccion completa de Docker sigue sin validacion porque el daemon esta apagado.
+La etapa base Docker y las descargas Debian por HTTPS se validaron. La construccion completa sigue pendiente.
 
 ## 12. Campana propia y progreso
 
