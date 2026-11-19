@@ -9,7 +9,7 @@ en PyTorch dentro del repositorio; no se usa Stable Baselines3 ni RLlib. Una sol
 |---|---|
 | Informe IEEE (4 págs.) | [informe/informe.pdf](informe/informe.pdf) · fuente [informe/informe.tex](informe/informe.tex) |
 | Presentación | [informe/presentacion.pptx](informe/presentacion.pptx) · generador [scripts/presentacion.js](scripts/presentacion.js) |
-| Figuras y tablas | [informe/figuras/](informe/figuras/) |
+| Figuras, GIF y tablas (una carpeta por sección) | [informe/figuras/](informe/figuras/) · índice en [Figuras](#figuras) |
 
 ## Resultados (200 episodios independientes, defensor a potencia 50)
 
@@ -165,6 +165,8 @@ se evalúan y se ven siempre con `--x-ventaja 28`.
 bash scripts/evaluar_final.sh
 python scripts/graficas_imitacion.py
 python scripts/graficas_final.py
+python scripts/graficas_mejores.py
+python scripts/graficas_presentacion.py
 cd informe && pdflatex informe.tex && pdflatex informe.tex && cd ..
 node scripts/presentacion.js
 ```
@@ -172,6 +174,36 @@ node scripts/presentacion.js
 `evaluar_final.sh` aplica un único protocolo: 200 episodios independientes (semillas de prueba 10000+),
 política determinista, sin actualizar pesos, 2v1, defensor a potencia 50. Las tasas llevan IC de Wilson al 95 %.
 `node scripts/presentacion.js` requiere `pptxgenjs` (`npm install pptxgenjs`).
+
+## Figuras
+
+Todas en [informe/figuras/](informe/figuras/), agrupadas por sección de la presentación. Éxito en
+prueba = 200 episodios independientes (semillas 10000-10199), defensor 50, IC de Wilson al 95 %.
+Las curvas de retorno usan media móvil de 1000 pasos de entorno y sombra ±1σ, con el mismo eje y
+para "desde cero" y "ajuste fino" en cada tarea.
+
+| Carpeta | Contenido |
+|---|---|
+| [00_mdp/](informe/figuras/00_mdp/) | `mdp_continuo.png`: estado continuo de 34 variables, acciones, recompensa con PBRS, γ y horizonte |
+| [01_persecucion/](informe/figuras/01_persecucion/) · [02_conduccion/](informe/figuras/02_conduccion/) · [03_definicion/](informe/figuras/03_definicion/) | `reward_desde_cero_vs_ajuste_fino.png` (DQN, A2C y PPO lado a lado) · `reward_desde_cero_dqn_a2c_ppo.png` · `reward_ajuste_fino_dqn_a2c_ppo.png` · `exito_desde_cero_dqn_a2c_ppo.png` · `exito_ajuste_fino_dqn_a2c_ppo.png` · `exito_bc_dagger.png` (solo imitación) · `mejora_dagger.png` (éxito y retorno de BC frente a DAgger) · `mejor_ejecucion.gif` |
+| [04_jerarquico/](informe/figuras/04_jerarquico/) | `reward_y_goles.png` (entrenamiento de la jerarquía final y evaluaciones) · `caso_exito.png` / `.gif` (un gol, coloreado por habilidad) · `demo_final.gif` (8 episodios de `final4b`) |
+| [top_policies/](informe/figuras/top_policies/) | `mejores_por_subtarea.png` (mejor modelo por método en cada subtarea) · `jerarquia_final.png` · `jerarquia_lejano_curva.png` (60 % de goles en entrenamiento frente a 65 % en prueba) |
+| [pilares/](informe/figuras/pilares/) · [imitacion/](informe/figuras/imitacion/) | Figuras y tablas de los pilares 2 y 3 y de imitación + ajuste fino |
+
+El 60 % que aparece al final del entrenamiento de `lejano_jer` es la tasa de gol con la política
+estocástica (exploración). La evaluación de `final4b`, con política determinista, da 65 %.
+"Desde cero" en conducción y definición es la semilla 0 de 10k pasos, copiada a la corrida
+`desde_cero` y evaluada con el mismo protocolo: conducción 0 % con los tres algoritmos; definición
+87-90 % (habilidad sola desde la zona de tiro).
+
+Los GIF se dibujan a partir de grabaciones reales del servidor (`.rcg`):
+
+```bash
+docker compose run --rm visual python -u proyecto.py ver --tarea jerarquico --algoritmo ppo --corrida final4b \
+  --x-ventaja 28 --escenario 2v1 --reglas recuperacion --fuerza-defensor 50 --sin-teclado \
+  --grabar --episodios 25 --fps 30 --salida resultados/videos_rcg/jerarquico_final4b
+python scripts/graficas_presentacion.py
+```
 
 ## Dónde está cada cosa
 
