@@ -36,7 +36,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates libboost-system1.74.0 libboost-filesystem1.74.0 \
     libboost-program-options1.74.0 libboost-regex1.74.0 libboost-thread1.74.0 \
     libqt5widgets5 libqt5network5 libqt5printsupport5 libgl1 libxkbcommon-x11-0 libxcb-xinerama0 zlib1g \
-    xvfb x11vnc novnc websockify x11-utils openbox fonts-dejavu-core \
+    xvfb x11vnc novnc websockify x11-utils openbox fonts-dejavu-core libtk8.6 \
     && rm -rf /var/lib/apt/lists/*
 COPY --from=simulator-build /opt/runtime/bin/ /usr/local/bin/
 COPY --from=simulator-build /opt/runtime/lib/ /usr/local/lib/

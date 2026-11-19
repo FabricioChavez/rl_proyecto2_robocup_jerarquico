@@ -73,8 +73,9 @@ class PoliticaCargada:
 
 
 def cargar_politica(algoritmo, path, device=None):
+    """algoritmo=None acepta cualquiera (habilidades de una jerarquía mixta)."""
     data = leer_checkpoint(path)
-    if data["algoritmo"] != algoritmo:
+    if algoritmo is not None and data["algoritmo"] != algoritmo:
         raise ValueError(f'El archivo contiene {data["algoritmo"]}, no {algoritmo}')
     return PoliticaCargada(data, dispositivo_elegido(device))
 
@@ -103,6 +104,7 @@ def guardar_checkpoint(model, path, tarea, algoritmo):
         origen_pesos=model.origen_pesos,
         algoritmo=algoritmo,
         tarea=tarea,
+        reglas=getattr(model, "reglas", "clasicas"),
         pasos=int(model.num_timesteps),
         llamadas=int(getattr(model, "_n_calls", model.num_timesteps)),
         episodios=int(getattr(model, "_episode_num", 0)),

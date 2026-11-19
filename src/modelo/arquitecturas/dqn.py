@@ -45,9 +45,13 @@ class DQN(Agente):
     def actualizar(self):
         batch = self.replay_buffer.muestrear(self.args.batch, self.device)
         with torch.no_grad():
-            future = (
-                self.policy.q_net_target(batch["next_observations"]).max(dim=1).values
-            )
+            siguiente = batch["next_observations"]
+            if getattr(self.args, "double", False):
+                # Double DQN (van Hasselt et al. 2016): reduce la sobreestimación.
+                elegida = self.policy.q_net(siguiente).argmax(dim=1, keepdim=True)
+                future = self.policy.q_net_target(siguiente).gather(1, elegida).squeeze(1)
+            else:
+                future = self.policy.q_net_target(siguiente).max(dim=1).values
             target = batch["rewards"] + self.gamma * (1 - batch["dones"]) * future
         predicted = (
             self.policy.q_net(batch["observations"])

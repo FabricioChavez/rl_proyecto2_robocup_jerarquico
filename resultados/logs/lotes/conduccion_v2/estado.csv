@@ -1,0 +1,5 @@
+tiempo,algoritmo,corrida,estado,codigo,log
+1795072694.8538897,ddqn_dueling,conduccion_v2_128x128_s0,iniciado,,resultados\logs\lotes\conduccion_v2\jobs\ddqn_dueling_conduccion_v2_128x128_s0.log
+1795072694.8538897,mpdqn,conduccion_v2_128x128_s0,iniciado,,resultados\logs\lotes\conduccion_v2\jobs\mpdqn_conduccion_v2_128x128_s0.log
+1795072972.2828212,ddqn_dueling,conduccion_v2_128x128_s0,terminado,0,resultados\logs\lotes\conduccion_v2\jobs\ddqn_dueling_conduccion_v2_128x128_s0.log
+1795073043.8341901,mpdqn,conduccion_v2_128x128_s0,terminado,0,resultados\logs\lotes\conduccion_v2\jobs\mpdqn_conduccion_v2_128x128_s0.log

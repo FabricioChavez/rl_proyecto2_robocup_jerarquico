@@ -1,5 +1,7 @@
 # Tabla de comandos
 
+**Nuevo: [conducción Double+Dueling y MP-DQN en CUDA, detach y logs](CONDUCCION_GPU.md).** Código local nuevo, todavía sin ejecutar/validar.
+
 Ejecuta los comandos desde la raíz del repositorio, con Docker iniciado.
 Sirven en PowerShell y en terminales Linux/macOS, sin alias. La imagen base usa CPU.
 En esta PC la imagen CPU ya está construida. En otra PC empieza por la primera tabla.

@@ -20,6 +20,15 @@ def comun(parser):
     parser.add_argument(
         "--corrida", dest="run", help="Nombre de la carpeta; por defecto semilla_N"
     )
+    parser.add_argument(
+        "--reglas",
+        choices=["clasicas", "recuperacion"],
+        help="clasicas: pierde al primer toque rival; recuperacion: el rival debe "
+        "conservar el balón --ciclos-posesion ciclos. Por defecto, las guardadas en el .pth",
+    )
+    parser.add_argument(
+        "--ciclos-posesion", dest="possession_cycles", type=int, default=12
+    )
 
 
 def entrenamiento(parser, campana=False):
@@ -89,6 +98,11 @@ def entrenamiento(parser, campana=False):
     parser.add_argument("--gradient-steps", dest="gradient_steps", type=int, default=1)
     parser.add_argument("--target-update", dest="target_update", type=int, default=500)
     parser.add_argument(
+        "--double",
+        action="store_true",
+        help="DQN: objetivo Double DQN (elige con la red online, evalúa con la objetivo)",
+    )
+    parser.add_argument(
         "--exploration-fraction", dest="exploration_fraction", type=float, default=0.5
     )
     parser.add_argument(
@@ -112,6 +126,13 @@ def entrenamiento(parser, campana=False):
     )
     parser.add_argument("--costo-paso", dest="step_reward", type=float, default=-0.01)
     parser.add_argument("--escala-pbrs", dest="shaping_scale", type=float, default=1.0)
+    parser.add_argument(
+        "--fuerza-defensor",
+        dest="defender_power",
+        type=int,
+        default=100,
+        help="Potencia con la que corre el defensor (0-100); usa la misma que al evaluar",
+    )
     parser.add_argument(
         "--checkpoint-cada",
         dest="checkpoint_every",
@@ -304,6 +325,12 @@ def parser():
     )
     graphs.add_argument("--ventana", dest="window", type=int, default=20)
     commands.add_parser("estado", help="Ver qué pesos y evaluaciones existen")
+    demo = commands.add_parser(
+        "demo", help="Ver en rcssmonitor una variante del catálogo (sin nombre: lista)",
+        formatter_class=formatter,
+    )
+    demo.add_argument("nombre", nargs="?", help="Nombre de la demo; sin nombre lista el catálogo")
+    demo.add_argument("--episodios", type=int, default=20)
     report = commands.add_parser(
         "informe",
         help="Copiar gráficas y tablas a informe/, sin duplicar pesos",
@@ -312,24 +339,35 @@ def parser():
     report.add_argument("--destino", type=Path, default=Path("informe"))
     imitation = commands.add_parser(
         "imitar",
-        help="Demostraciones, BC o DAgger con la misma política",
+        help="Experto HUMANO por teclado: demos, Behavioral Cloning y DAgger (PyTorch)",
         formatter_class=formatter,
     )
     comun(imitation)
     imitation.add_argument(
-        "--tarea", dest="task", choices=TAREAS[:3], default="persecucion"
+        "mode",
+        choices=["demos", "bc", "dagger"],
+        help="demos: tú juegas; bc: ajuste supervisado sin servidor; "
+        "dagger: la red juega y tú etiquetas cada estado",
     )
     imitation.add_argument(
-        "--algoritmo", dest="algo", choices=["ppo", "a2c"], default="ppo"
+        "--tarea", dest="task", choices=TAREAS[:4], default="persecucion"
+    )
+    imitation.add_argument(
+        "--algoritmo", dest="algo", choices=ALGORITMOS, default="ppo"
     )
     imitation.add_argument("--semilla", dest="seed", type=int, default=0)
     imitation.add_argument(
         "--escenario", dest="scenario", choices=["1v1", "2v1"], default="2v1"
     )
-    imitation.add_argument("--continuar", dest="resume", type=Path)
+    imitation.add_argument(
+        "--continuar",
+        dest="resume",
+        type=Path,
+        help="bc: partir de un .pth; dagger: por defecto final.pth de la corrida",
+    )
     imitation.add_argument("--red", dest="network", type=int, nargs="+")
-    imitation.add_argument("--lr", type=float, default=3e-4)
-    imitation.add_argument("--batch", type=int, default=100)
+    imitation.add_argument("--lr", type=float, default=1e-3)
+    imitation.add_argument("--batch", type=int, default=64)
     imitation.set_defaults(
         rollout=200,
         epochs=1,
@@ -342,21 +380,103 @@ def parser():
         optimizer_eps=None,
         rms_alpha=0.99,
         target_kl=None,
+        buffer=50000,
+        warmup=500,
+        steps=1,
+        train_freq=4,
+        gradient_steps=1,
+        target_update=500,
+        exploration_fraction=0.5,
+        epsilon_initial=1.0,
+        epsilon_final=0.05,
+        epsilon_steps=None,
     )
-    imitation.add_argument("mode", choices=["demos", "bc", "dagger"])
     imitation.add_argument(
-        "--experto", dest="expert", choices=["humano", "heuristico"], default="humano"
+        "--datos",
+        dest="dataset",
+        type=Path,
+        help="CSV de demostraciones; por defecto datos/demostraciones/humano_TAREA.csv",
     )
-    imitation.add_argument("--datos", dest="dataset", type=Path, required=True)
     imitation.add_argument("--episodios", dest="episodes", type=int, default=5)
     imitation.add_argument("--rondas", dest="rounds", type=int, default=3)
-    imitation.add_argument("--epocas-bc", dest="bc_epochs", type=int, default=30)
-    imitation.add_argument("--beta", type=float, default=0.2)
+    imitation.add_argument("--epocas-bc", dest="bc_epochs", type=int, default=60)
+    imitation.add_argument(
+        "--validacion", dest="validation", type=float, default=0.1
+    )
+    imitation.add_argument(
+        "--balancear-clases", dest="balance", action="store_true"
+    )
+    imitation.add_argument(
+        "--margen", dest="margin", type=float, default=0.8, help="DQN: margen DQfD"
+    )
+    imitation.add_argument(
+        "--peso-td",
+        dest="td_weight",
+        type=float,
+        default=1.0,
+        help="DQN: peso de la pérdida TD sobre las demostraciones",
+    )
+    imitation.add_argument(
+        "--coef-valor-bc",
+        dest="bc_value_coef",
+        type=float,
+        default=0.5,
+        help="PPO/A2C: crítico ajustado a retornos Monte Carlo de las demos",
+    )
+    imitation.add_argument(
+        "--entropia-bc", dest="bc_entropy", type=float, default=0.0
+    )
+    imitation.add_argument(
+        "--shaping", choices=["none", "pbrs", "naive"], default="pbrs"
+    )
+    imitation.add_argument(
+        "--fuerza-defensor", dest="defender_power", type=int, default=100
+    )
+    imitation.add_argument(
+        "--sin-monitor", dest="no_monitor", action="store_true"
+    )
+    imitation.add_argument(
+        "--sin-pausa",
+        dest="no_pause",
+        action="store_true",
+        help="No congelar rcssserver mientras esperas para empezar",
+    )
+    imitation.add_argument(
+        "--fps",
+        type=float,
+        default=8,
+        help="Ciclos por segundo del juego (tiempo real = 10); baja a 5 si va rápido",
+    )
+    imitation.add_argument(
+        "--corrida-habilidades",
+        dest="skills_run",
+        help="Jerárquico: corrida de las 3 habilidades; por defecto la misma --corrida",
+    )
+    imitation.add_argument(
+        "--algoritmo-habilidades", dest="skill_algo", choices=ALGORITMOS
+    )
+    imitation.add_argument(
+        "--experto",
+        dest="expert",
+        choices=["humano", "programado"],
+        default="humano",
+        help="programado (conduccion y jerarquico): experto automático, sin ventana ni "
+        "tiempo real; demos = juega él, dagger = juega la red y él etiqueta cada estado",
+    )
+    from experimentos_conduccion import registrar
+    registrar(commands)
     return root
 
 
 def main(argv=None):
     args = parser().parse_args(argv)
+    if args.command == "demo":
+        from demos import ejecutar as demo
+
+        return demo(args)
+    if args.command in ('entrenar-conduccion', 'lote-conduccion', 'evaluar-conduccion', 'graficar-conduccion', 'ver-conduccion'):
+        from experimentos_conduccion import ejecutar
+        return ejecutar(args)
     if hasattr(args, "gamma") and not 0 < args.gamma <= 1:
         raise ValueError("--gamma debe estar en (0,1]")
     if hasattr(args, "task") and args.task is not None:
@@ -368,6 +488,8 @@ def main(argv=None):
         raise ValueError("Horizonte y pasos-opcion deben ser positivos")
     if hasattr(args, "checkpoint_every") and args.checkpoint_every < 0:
         raise ValueError("--checkpoint-cada no puede ser negativo")
+    if getattr(args, "possession_cycles", 1) <= 0:
+        raise ValueError("--ciclos-posesion debe ser positivo")
     if hasattr(args, "window") and args.window <= 0:
         raise ValueError("--ventana debe ser positiva")
     if getattr(args, "network", None) and any(n <= 0 for n in args.network):

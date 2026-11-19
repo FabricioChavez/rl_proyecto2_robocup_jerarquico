@@ -241,9 +241,12 @@ def ejecutar(args):
         args.network = inferred
     else:
         args.network = args.network or [128, 128]
+    args.reglas = args.reglas or (
+        checkpoint.get("reglas", "clasicas") if checkpoint else "clasicas"
+    )
     skills = (
         [
-            cargar_politica(args.skill_algo or args.algo, path, args.device)
+            cargar_politica(None, path, args.device)
             for path in (
                 args.skills
                 or [
@@ -271,11 +274,15 @@ def ejecutar(args):
             failure_reward=args.failure_reward,
             step_reward=args.step_reward,
             shaping_scale=args.shaping_scale,
+            reglas=args.reglas,
+            ciclos_posesion=args.possession_cycles,
+            potencia_defensor=getattr(args, "defender_power", 100),
         )
         try:
             model = crear_modelo(env, args)
             if checkpoint:
                 restaurar_entrenamiento(model, checkpoint)
+            model.reglas = args.reglas
             print(
                 f"PyTorch PROPIO: {args.task}/{args.algo} en {model.device}. Pesos: {weights}; CSV: {logs}",
                 flush=True,

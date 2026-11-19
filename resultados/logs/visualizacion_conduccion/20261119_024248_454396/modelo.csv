@@ -1,0 +1,9 @@
+campo,valor
+pesos,resultados\modelo_weights\conduccion\mpdqn\conduccion_recuperacion_128x128_s0\final.pth
+algoritmo,mpdqn
+pasos,100000
+red,"[128, 128]"
+defensor,0
+metros,30.0
+semilla_inicial,10000
+aprendizaje,False

@@ -24,7 +24,21 @@ class SoccerEnv(gym.Env):
         failure_reward=-5.0,
         step_reward=-0.01,
         shaping_scale=1.0,
+        reglas="clasicas",
+        ciclos_posesion=12,
+        potencia_defensor=100,
     ):
+        # clasicas: el episodio termina al primer toque rival y el defensor despeja.
+        # recuperacion: el defensor conduce el balón; solo se pierde si el rival lo
+        # conserva `ciclos_posesion` ciclos seguidos; conducción gana al superar la
+        # línea del defensor con el balón controlado (o recibido por el compañero).
+        if reglas not in ("clasicas", "recuperacion"):
+            raise ValueError("reglas debe ser 'clasicas' o 'recuperacion'")
+        self.reglas, self.ciclos_posesion = reglas, ciclos_posesion
+        if not 0 <= potencia_defensor <= 100:
+            raise ValueError("potencia_defensor debe estar entre 0 y 100")
+        self.potencia_defensor = potencia_defensor  # dash del defensor al perseguir
+        self.posesion_rival = 0
         self.task, self.scenario = task, scenario
         self.shaping, self.gamma, self.horizon = shaping, gamma, horizon
         self.option_steps, self.skills = option_steps, skills
@@ -94,8 +108,39 @@ class SoccerEnv(gym.Env):
     def reset(self, *, seed=None, options=None):
         super().reset(seed=seed)
         self.t = 0
+        self.posesion_rival = 0
         self.base_return = 0.0
         self.server.reset(self.task, self.np_random, self.scenario)
+        if self.reglas == "recuperacion" and self.task == "conduccion":
+            # La misma situación que encuentra la jerarquía al pasar de persecución a
+            # conducción: balón recién capturado en x de -6 a 0 (donde lo deja el
+            # reset jerárquico) y el defensor en su puesto, x = 23. Se sortea de 16 a
+            # 23 porque mientras persecución captura, el defensor ya viene avanzando.
+            y = float(self.world.players[("Attack", 1)][1])
+            x = float(self.np_random.uniform(-6, 0))
+            self.server.move("p Attack 1", x - 0.5, y, float(self.np_random.uniform(-45, 45)))
+            self.server.move("b", x, y)
+            self.server.move(
+                "p Attack 2", x + 6.5, y - 9 if self.scenario == "2v1" else -30
+            )
+            self.server.move("p Rival 2", float(self.np_random.uniform(16, 23)), y + 3, 180)
+            self.server.world = self.server.look()
+        if self.reglas == "recuperacion" and self.task == "definicion":
+            # Donde la jerarquía cede a definición: balón al pie en la zona de tiro
+            # (x 32-42, y ±9), cuerpo aprox. hacia el arco y el defensor persiguiendo
+            # de 2 a 6 m detrás. Antes salía siempre de x = 38 mirando de frente.
+            r = self.np_random
+            x, y = float(r.uniform(32, 42)), float(r.uniform(-9, 9))
+            rumbo = np.degrees(np.arctan2(-y, 52.5 - x)) + float(r.uniform(-30, 30))
+            self.server.move("p Attack 1", x - 0.5, y, rumbo)
+            self.server.move("b", x, y)
+            self.server.move(
+                "p Attack 2", x + 6, float(np.clip(y - 9, -30, 30)) if self.scenario == "2v1" else -30
+            )
+            self.server.move(
+                "p Rival 2", x - float(r.uniform(2, 6)), y + float(r.uniform(-2, 2)), 0
+            )
+            self.server.world = self.server.look()
         self.last_ball = self.world.ball[:2].copy()
         return self.observe(), {"backend": "rcssserver", "scenario": self.scenario}
 
@@ -104,9 +149,9 @@ class SoccerEnv(gym.Env):
         d, g = w.players[("Rival", 2)], w.players[("Rival", 1)]
         # Defender and goalkeeper execute real server actions every cycle.
         dc = (
-            kick(d, [-52.5, 0], 100)
+            kick(d, [-52.5, 0], 20 if self.reglas == "recuperacion" else 100)
             if relative(d, w.ball)[0] < 0.8
-            else approach(d, w.ball)
+            else approach(d, w.ball, self.potencia_defensor)
         )
         gd, ga = relative(g, w.ball)
         gc = (
@@ -127,10 +172,35 @@ class SoccerEnv(gym.Env):
             mc = "(turn 0)"
         return mc, gc, dc
 
-    def _cycle(self, action, task):
+    X_DEFINICION = 36.0  # desde aquí, con el balón al pie, se cede a definición
+    RADIO_TIRO = 1.085  # distancia al balón con la que se considera "al pie" para tirar
+
+    def terminar_opcion(self, opcion):
+        """beta(s) de cada habilidad: devuelve el control al meta-controlador."""
+        p, b = self.world.players[("Attack", 1)], self.world.ball
+        d = relative(p, b)[0]
+        if opcion == 0:  # persecución: balón capturado
+            return d <= 1.085
+        if opcion == 1:  # conducción: zona de tiro con el balón al pie, o balón perdido
+            return (d <= self.RADIO_TIRO and p[0] > self.X_DEFINICION) or d > 6.0
+        return d > 3.0  # definición: ya disparó (o perdió el balón)
+
+    def robo_posible(self):
+        """Disputa por física oficial: el balón está a tu alcance de patada (<= 1,085 m).
+        En rcssserver cualquier jugador puede patear ese balón, aunque lo conduzca el rival."""
+        if self.reglas != "recuperacion":
+            return False
+        return relative(self.world.players[("Attack", 1)], self.world.ball)[0] <= 1.085
+
+    def _cycle(self, action, task, command_override=None):
         previous_phi = self.potential()
         previous_x = self.world.ball[0]
-        self.server.tick([command(task, action, self.world), *self.opponents()])
+        chosen = (
+            command(task, action, self.world, self.reglas)
+            if command_override is None
+            else command_override
+        )
+        self.server.tick([chosen, *self.opponents()])
         self.t += 1
         w = self.world
         p, b = w.players[("Attack", 1)], w.ball
@@ -149,20 +219,27 @@ class SoccerEnv(gym.Env):
         mate_captured = (
             self.scenario == "2v1" and relative(w.players[("Attack", 2)], b)[0] < 0.8
         )
+        rival = min(
+            relative(w.players[("Rival", 2)], b)[0],
+            relative(w.players[("Rival", 1)], b)[0],
+        )
+        if self.reglas == "recuperacion":
+            attacker = relative(p, b)[0]
+            self.posesion_rival = (
+                self.posesion_rival + 1 if rival < 0.8 and rival < attacker else 0
+            )
+            lost = self.posesion_rival >= self.ciclos_posesion
+            beyond = b[0] > w.players[("Rival", 2)][0] + 2.0
+            conducted = bool(beyond and (attacker <= 1.085 or mate_captured))
+        else:
+            lost = bool(rival < 0.65)
+            conducted = bool(b[0] > 34 and (captured or mate_captured))
         success = (
             captured
             if self.task == "persecucion"
-            else (
-                bool(b[0] > 34 and (captured or mate_captured))
-                if self.task == "conduccion"
-                else goal
-            )
+            else (conducted if self.task == "conduccion" else goal)
         )
         out = bool(abs(b[0]) >= 52.5 or abs(b[1]) > 34)
-        lost = bool(
-            relative(w.players[("Rival", 2)], b)[0] < 0.65
-            or relative(w.players[("Rival", 1)], b)[0] < 0.65
-        )
         terminated = bool(success or out or (lost and self.task != "persecucion"))
         timeout = bool(self.t >= self.horizon and not terminated)
         terminated = terminated or timeout
@@ -203,8 +280,10 @@ class SoccerEnv(gym.Env):
             raise ValueError(action)
         if self.task != "global":
             return self._cycle(action, self.task)
-        # Fixed decision interval gives an ordinary discounted MDP with gamma_meta=gamma**k.
-        # A skill's capture/kick completion does not alter interval length.
+        # Opciones (Sutton, Precup y Singh 1999): cada habilidad dura como máximo
+        # option_steps ciclos. Con reglas "recuperacion" además termina en cuanto se
+        # cumple su condición beta(s) (terminar_opcion), y el meta-controlador vuelve a
+        # decidir: semi-MDP con descuento gamma**k, k = ciclos realmente ejecutados.
         total, base_total = 0.0, 0.0
         for j in range(self.option_steps):
             skill = self.skills[action]
@@ -213,6 +292,8 @@ class SoccerEnv(gym.Env):
             total += self.gamma**j * reward
             base_total += self.gamma**j * info["base_reward"]
             if term or trunc:
+                break
+            if self.reglas == "recuperacion" and self.terminar_opcion(action):
                 break
         info.update(option=TASKS[action], primitive_steps=j + 1, base_reward=base_total)
         return obs, total, term, trunc, info

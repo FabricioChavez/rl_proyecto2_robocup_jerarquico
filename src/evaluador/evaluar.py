@@ -25,7 +25,7 @@ def ejecutar(args):
                 skills = (
                     [
                         cargar_politica(
-                            algo,
+                            None,
                             ruta_pesos(t, algo, seed, corrida=args.run),
                             args.device,
                         )
@@ -79,6 +79,9 @@ def ejecutar(args):
                             gamma=args.gamma,
                             horizon=args.horizon,
                             option_steps=args.option_steps,
+                            reglas=args.reglas
+                            or model.checkpoint.get("reglas", "clasicas"),
+                            ciclos_posesion=args.possession_cycles,
                         )
                         env.conditions = {}
                         try:

@@ -41,7 +41,7 @@ def test_actions_have_legal_primitive_command():
     for task in ("persecucion", "conduccion", "definicion", "plana"):
         for action in range(N_ACTIONS[task]):
             result = sexpr(command(task, action, world))
-            assert result[0] in ("turn", "kick", "dash")
+            assert result[0] in ("turn", "kick", "dash", "tackle")
             assert -180 <= result[-1] <= 180
 
 

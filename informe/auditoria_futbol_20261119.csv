@@ -1,0 +1,10 @@
+tarea,algoritmo,episodios,exitos,goles,duracion_media,capturas_menos_40
+conduccion,a2c,200,0,5,79.01,
+conduccion,dqn,200,0,1,77.36,
+conduccion,ppo,200,0,9,55.97,
+definicion,a2c,200,160,160,20.87,
+definicion,dqn,200,161,161,19.04,
+definicion,ppo,200,154,154,18.23,
+persecucion,a2c,200,107,1,79.2,57.0
+persecucion,dqn,200,195,0,16.22,192.0
+persecucion,ppo,200,149,0,63.38,108.0

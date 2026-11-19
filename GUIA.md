@@ -213,17 +213,64 @@ Las bandas entre semillas se dibujan cuando hay al menos tres corridas.
 y `informe/graficas/`. Crea `informe/README.md` con enlaces. Los PTH se enlazan, no se duplican.
 No inicia entrenamiento ni abre ventanas.
 
-## 10. BC y DAgger, cuando recojas demostraciones
+## 10. BC y DAgger con experto humano (Pilar 2B)
+
+El experto eres tú, por teclado. Código: [imitacion.py](src/modelo/imitacion.py) y [teclado.py](src/entorno/teclado.py).
+Se abre una ventana pequeña, **Experto humano**, encima del monitor oficial. Esa ventana debe tener el foco.
+El juego corre en tiempo real a `--fps 8`; usa `--fps 5` si va rápido. Cuenta el estado de las teclas **mantenidas**, así que `W+D` a la vez es una diagonal.
+
+| Tarea | Teclas |
+|---|---|
+| todas | `W A S D` / flechas: moverte. De frente corre a potencia completa; parado gira (35° por ciclo); corriendo, en vez de girar lento (~12° por ciclo) corre de lado o hacia atrás en esa dirección del campo. `X` repite el episodio (lo descarta), `Q`/`Esc` guarda y sale |
+| conduccion | Con el balón al pie, moverte lo conduce: `D` al arco, `W` arriba, `S` abajo. `7` robar: patada oficial de potencia 60 hacia adelante, 35° hacia el lado contrario del defensor, cuando el balón está a ≤1,085 m aunque lo conduzca el rival; es física de rcssserver, sin tackle ni teletransporte. `8` (o `E`) pase. Arranca como en la jerarquía: balón al pie en x de −6 a 0 y el defensor en su puesto (x de 16 a 23) |
+| definicion | `Espacio` tira de frente, hacia donde mira el jugador. Si antes usas `7`/`8`, la mira sube o baja de forma continua desde ahí y `Espacio` tira a la mira (la ventana muestra `y` y al arquero) |
+| jerarquico | `1` persecución, `2` conducción, `3` definición; la habilidad sigue hasta que cambies |
+
+**Reglas `recuperacion`** (por defecto en `imitar`; quedan guardadas en el `.pth`, así que `ver`, `evaluar` y `entrenar --continuar` las usan solas):
+- el defensor conduce el balón en vez de despejarlo;
+- se pierde solo si el rival lo conserva `--ciclos-posesion 12` ciclos seguidos;
+- conducción gana al **superar la línea del defensor** con el balón controlado, o si el compañero lo recibe allí.
+
+`--reglas clasicas` reproduce el contrato antiguo.
+Menús nuevos, añadidos al final para que los modelos antiguos sigan cargando:
+- persecución: 12 acciones (4 originales + correr en 8 direcciones del campo);
+- conducción: 16 acciones (7 originales + robar + correr en 8 direcciones);
+- definición: 20 acciones (5 tiros, moverse, 4 tiros intermedios con la mira cada 1,5 m, + correr en 8 direcciones).
+
+"Correr en dirección" es `(dash 100 dir)` oficial de rcssserver: mueve al jugador sin girar el cuerpo (de lado rinde ~40 %, hacia atrás ~70 %). La política plana no cambia (13 acciones).
+
+Los `.pth` antiguos de persecución, conducción y definición se pueden evaluar, pero no continuar con `--continuar`, porque cambió el tamaño de la salida.
+
+Las teclas se traducen a la acción del menú discreto que la red puede emitir: girar ±35°, dash, correr en dirección, toque, robo, pase o tiro.
+Esa acción es la etiqueta que copian BC y DAgger.
+Se guardan todos los ciclos. La columna `humano` marca los tuyos: BC imita solo esos, y el crítico y el TD de DQN usan todos.
+
+**DAgger** es intervencionista (HG-DAgger, Kelly et al. 2019): juega la red y, cuando pulsas teclas, tomas el control.
+Tus correcciones se añaden al dataset, y al final de cada ronda la red se reentrena con todo el dataset acumulado.
+
+Las demostraciones se **añaden** a `datos/demostraciones/humano_TAREA.csv`.
+Los pesos se guardan en `resultados/modelo_weights/TAREA/ALGORITMO/humano/` como `bc.pth`, solo BC, y `final.pth`, el último BC o DAgger.
+Los logs están en `resultados/logs/TAREA/ALGORITMO/humano/`:
+- `imitacion.csv`: pérdida y acierto por época y ronda.
+- `demostraciones.csv`: éxito por episodio humano y acuerdo humano-red.
+
+Usa la **misma `--corrida`** en las cuatro tareas. Así la jerarquía, `evaluar` y `ver` encuentran solas las tres habilidades.
 
 ```bash
-python proyecto.py imitar demos --tarea persecucion --algoritmo ppo --datos datos/demostraciones/persecucion.csv --experto humano --episodios 5
-python proyecto.py imitar bc --tarea persecucion --algoritmo ppo --datos datos/demostraciones/persecucion.csv --epocas-bc 30
-python proyecto.py imitar dagger --tarea persecucion --algoritmo ppo --datos datos/demostraciones/persecucion.csv --continuar resultados/modelo_weights/persecucion/bc/semilla_0/final.pth --rondas 3 --beta 0.2
+# 1) Habilidades: demos -> BC -> DAgger (repetir para conduccion y definicion)
+python proyecto.py imitar demos --tarea persecucion --algoritmo ppo --episodios 5
+python proyecto.py imitar bc --tarea persecucion --algoritmo ppo --dispositivo cuda
+python proyecto.py imitar dagger --tarea persecucion --algoritmo ppo --rondas 3 --episodios 3
+# 2) Coordinación: tú eliges la habilidad, 10 episodios
+python proyecto.py imitar demos --tarea jerarquico --algoritmo ppo --episodios 10
+python proyecto.py imitar bc --tarea jerarquico --algoritmo ppo
+# 3) Probar
+python proyecto.py ver --tarea jerarquico --algoritmo ppo --corrida humano --dispositivo cpu
+python proyecto.py evaluar --tareas jerarquico --algoritmos ppo --semillas 0 --corrida humano --episodios 200 --escenarios 2v1 --sin-graficas
 ```
 
-Los datos humanos siguen pendientes. `--experto heuristico` es solo para ensayos automáticos y queda identificado
-como tal en el CSV. BC/DAgger usan PPO/A2C; sus PTH quedan bajo carpetas `bc/` o `dagger/`.
-Para ajuste fino con RL, usa `entrenar --continuar` con ese PTH y el algoritmo base correspondiente.
+DQN también está soportado: pérdida de margen DQfD más TD(0). PPO/A2C usan entropía cruzada y un crítico ajustado a retornos Monte Carlo.
+Para el ajuste fino con RL, usa `entrenar --continuar resultados/modelo_weights/TAREA/ALGORITMO/humano/final.pth --corrida humano_ft`.
 
 ## 11. Implementacion y validacion
 

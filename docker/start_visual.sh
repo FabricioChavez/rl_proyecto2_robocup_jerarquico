@@ -54,7 +54,9 @@ echo 'Abre esa direccion en el navegador. El servidor, las politicas y rcssmonit
 if [[ "$#" == 0 ]]; then
   set -- python -u proyecto.py ver --tarea jerarquico --algoritmo ppo --sin-teclado
 fi
-"$@" &
+# <&0 keeps the TTY: bash would otherwise give a background job /dev/null as
+# stdin, and 'imitar' (human expert) reads the keyboard from this terminal.
+"$@" <&0 &
 policy_pid=$!
 pids+=("$policy_pid")
 wait "$policy_pid"
