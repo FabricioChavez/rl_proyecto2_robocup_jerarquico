@@ -21,6 +21,7 @@ informe/tablas/
 CONTEXTO_ACTUAL.md
 # auxiliares de LaTeX
 informe/*.aux
+informe/build/
 informe/*.out
 # copias intermedias de pesos (duplicadas o de experimentos descartados)
 resultados/modelo_weights/*/ppo/zt_dqn/

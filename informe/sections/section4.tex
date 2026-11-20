@@ -1,0 +1,78 @@
+\section{Escalera de algoritmos: valor vs.\ actor-crítico}
+Se comparan Q-learning tabular, DQN/Double DQN y A2C/PPO para aprender las
+habilidades que compone el coordinador. Los agentes profundos usan PyTorch y
+observaciones continuas; la escalera comparativa se realiza en persecución.
+
+\subsection{Del control tabular a las redes de valor}
+El baseline tabular discretiza distancia y ángulo al balón en 72 estados y utiliza
+cuatro acciones. Actualiza una tabla con tasa de aprendizaje 0,1:
+\[
+    Q(s_t,a_t)\leftarrow Q(s_t,a_t)+\alpha\bigl(y_t-Q(s_t,a_t)\bigr).
+\]
+Su representación reducida sirve como referencia frente a la generalización de
+las redes, aunque también cambia el catálogo de acciones: los agentes profundos
+de persecución disponen de 12. La comparación no aísla únicamente el aproximador.
+
+DQN \cite{mnih2015} aproxima el valor de cada acción mediante una MLP con dos capas
+ocultas de 128 unidades y activación ReLU. Explora con una política
+$\epsilon$-greedy y reutiliza transiciones de un replay de 50\,000 muestras,
+con lotes de 128. Una red objetivo estabiliza el objetivo TD:
+\[
+    y_t^{\rm DQN}=r_t+\gamma(1-d_t)\max_{a'}Q_{\bar\theta}(s_{t+1},a').
+\]
+Aquí, $d_t$ indica terminación. Se minimiza la pérdida Huber con Adam y se copia
+la red aprendida a la red objetivo cada 500 interacciones.
+
+Double DQN \cite{vanhasselt2016} separa la selección de la acción y su evaluación
+para mitigar la sobreestimación del máximo:
+\[
+    a^*=\arg\max_{a'}Q_\theta(s_{t+1},a').
+\]
+\[
+    y_t^{\rm DDQN}=r_t+\gamma(1-d_t)Q_{\bar\theta}(s_{t+1},a^*).
+\]
+Conserva la arquitectura y el replay de DQN; cambia únicamente el cálculo del
+objetivo TD.
+
+\subsection{Aprendizaje directo con actor y crítico}
+A2C y PPO aprenden una política categórica y un valor de estado. Cada uno usa
+redes separadas para actor y crítico, con dos capas de 128 unidades y activación
+Tanh. A diferencia del replay de DQN, actualizan con trayectorias de la política
+reciente. Ambos estiman ventajas mediante GAE \cite{schulman2016gae}:
+\[
+    \delta_t=r_t+\gamma(1-d_t)V(s_{t+1})-V(s_t).
+\]
+\[
+    \hat A_t=\delta_t+\gamma\lambda(1-b_t)\hat A_{t+1}.
+\]
+El indicador $b_t$ corta la recurrencia al cambiar de episodio; el parámetro GAE
+se fija en 0,95. A2C \cite{mnih2016} realiza una actualización con RMSprop por
+rollout de 100 pasos, usando la pérdida de política
+\[
+    L_\pi^{\rm A2C}=-\mathbb{E}_t[\log\pi_\theta(a_t\mid s_t)\hat A_t].
+\]
+
+PPO \cite{schulman2017} reutiliza cada rollout de 200 pasos durante cinco épocas,
+con Adam y minilotes de 100. Limita el cambio de política mediante la razón de
+probabilidades y su recorte:
+\[
+    \rho_t=\frac{\pi_\theta(a_t\mid s_t)}{\pi_{\theta_{\rm old}}(a_t\mid s_t)}.
+\]
+\[
+    c_t=\operatorname{clip}(\rho_t,1-\epsilon,1+\epsilon),\qquad\epsilon=0{,}2.
+\]
+\[
+    L_\pi^{\rm PPO}=-\mathbb{E}_t[\min(\rho_t\hat A_t,c_t\hat A_t)].
+\]
+Ambos actor-críticos añaden el error cuadrático del valor y una bonificación de
+entropía, con coeficientes predeterminados 0,5 y 0,01, respectivamente. La tasa
+de aprendizaje inicial de los agentes profundos es
+\[
+    \eta=3\cdot10^{-4}.
+\]
+
+La escalera configura 30\,000 interacciones por corrida, semillas 0, 1 y 2,
+reglas de recuperación y defensor a potencia 50. El contraste básico usa PBRS;
+las variantes sin shaping, con shaping ingenuo y con inicialización por BC
+permiten estudiar por separado esos mecanismos. Las métricas y los resultados
+se presentan en la sección experimental.

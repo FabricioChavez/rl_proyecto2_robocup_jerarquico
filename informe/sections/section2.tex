@@ -1,0 +1,15 @@
+\section{Introducción}
+El fútbol autónomo combina estados físicos continuos, interacción entre jugadores
+y recompensas dispersas. Resolver habilidades por separado no asegura un ataque
+completo eficaz: el estado que deja una habilidad condiciona el desempeño de la
+siguiente. Se aborda este problema en RoboCup 2D mediante un coordinador que
+selecciona persecución, conducción o definición.
+
+El estudio compara aprendizaje de valor con DQN/Double DQN y métodos actor-crítico
+con A2C/PPO, tomando el control tabular como referencia. Se integra PBRS para
+orientar la exploración y BC/DAgger para inicializar las políticas antes del
+ajuste con RL. La evaluación distingue aprendizaje por habilidad, efecto del
+shaping y desempeño de la jerarquía frente a una política plana. El objetivo es
+alcanzar al menos 80\,\% de goles en 200 episodios de prueba, examinando también
+la eficiencia muestral y las limitaciones de generalización. Las redes y los
+bucles de aprendizaje se implementan en PyTorch.

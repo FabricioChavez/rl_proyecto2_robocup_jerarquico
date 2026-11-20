@@ -1,0 +1,24 @@
+\section{Protocolo experimental}
+Se estudian tres algoritmos principales: DQN, A2C y PPO, junto con sus variantes
+preentrenadas por BC, refinadas con DAgger y ajustadas posteriormente con RL.
+DAgger utiliza las mismas redes, sin constituir otro algoritmo de control.
+La escalera de persecución añade una referencia tabular y la variante Double DQN,
+con tres semillas (0, 1 y 2) y 30\,000 interacciones por corrida. Este presupuesto
+excluye el preentrenamiento por imitación. La ablación de PPO compara ausencia
+de shaping, PBRS y shaping ingenuo; en conducción parte del mismo modelo BC.
+
+Cada modelo se evalúa en 200 episodios con reinicio, pesos fijos y acciones
+deterministas, usando semillas iniciales consecutivas desde 10\,000. La condición
+común es 2v1, arquero activo, defensor a potencia 50, reglas de recuperación y
+horizonte de 200 ciclos. Se desactiva el shaping y se registran retorno base,
+éxito de la subtarea, gol y duración. La escalera reporta media y dispersión
+entre semillas, retorno del último 20\,\% de episodios y pasos hasta el umbral
+común del 80\,\% del rango de retorno. Las tasas de gol incluyen intervalos de
+Wilson al 95\,\%. Las tres semillas corresponden a la escalera, no a todas las
+variantes jerárquicas.
+
+El repositorio público\footnote{\url{https://github.com/FabricioChavez/rl_proyecto2_robocup_jerarquico}}
+reúne el código, la configuración Docker y los procedimientos para replicar
+entrenamiento, evaluación y figuras. Las semillas controlan el aprendizaje y
+los reinicios, pero no fijan toda la aleatoriedad física del servidor; por ello,
+no se garantiza reproducción bit a bit.

@@ -1,0 +1,15 @@
+\section{Conclusiones}
+La comparación muestra que el desempeño depende de la tarea: DQN alcanza el
+umbral de retorno en persecución con menos interacciones que PPO, mientras
+A2C/PPO obtienen mejores resultados de conducción después de imitación.
+PBRS mejora el éxito frente al shaping ingenuo, cuya recompensa elevada no
+se traduce en mejor cumplimiento de la tarea. BC y DAgger permiten aprovechar
+demostraciones, pero su beneficio depende del experto y del ajuste posterior.
+
+El mejor ataque jerárquico obtiene 130 goles en 200 episodios, equivalentes a
+65,0\,\% (IC 95\,\%: 58,2--71,3\,\%), y supera en esta prueba a la jerarquía
+inicial y a la política plana. La meta del 80\,\% permanece pendiente. Entrenar
+definición dentro de la jerarquía ofrece una mejora relevante, sin aislar su
+efecto del presupuesto adicional. Para consolidar la conclusión se requieren
+réplicas con varias semillas, presupuestos comparables y condiciones de juego
+más diversas.

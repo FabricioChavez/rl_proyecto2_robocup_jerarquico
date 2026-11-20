@@ -18,7 +18,7 @@ AZUL, NARANJA, AGUA = "#2a78d6", "#eb6834", "#1baf7a"
 SUPERFICIE, TEXTO, TEXTO_2, REJILLA = "#fcfcfb", "#0b0b0b", "#52514e", "#e1e0d9"
 FAMILIA = {"imitación": AZUL, "imitación + RL": NARANJA, "sin jerarquía": AGUA}
 FILAS = [
-    ("Plana PPO (200k pasos)", "plana/ppo/plana50", "sin jerarquía"),
+    ("Plana PPO", "plana/ppo/plana50", "sin jerarquía"),
     ("Todo + DQN", "jerarquico/dqn/sistema_ft", "imitación + RL"),
     ("Todo + A2C", "jerarquico/a2c/sistema_ft", "imitación + RL"),
     ("Todo + PPO", "jerarquico/ppo/sistema_ft", "imitación + RL"),
@@ -26,6 +26,9 @@ FILAS = [
     ("Coord. BC experto", "jerarquico/ppo/final_bc/jerarquico/ppo/final", "imitación"),
     ("Coord. DAgger experto", "jerarquico/ppo/final", "imitación"),
     ("Coord. DAgger + PPO", "jerarquico/ppo/final_ft/jerarquico/ppo/final", "imitación + RL"),
+    ("Currículo de definición", "jerarquico/ppo/final2", "imitación + RL"),
+    ("Traspaso con ventaja", "jerarquico/ppo/final4", "imitación + RL"),
+    ("Definición dentro de jerarquía", "jerarquico/ppo/final4b", "imitación + RL"),
 ]
 
 
@@ -44,7 +47,7 @@ def main():
             d = pd.read_csv(f)
             k, n = int(d.gol.sum()), len(d)
             datos.append((nombre, k / n, *wilson(k, n), n, familia))
-    fig, ax = plt.subplots(figsize=(6.4, 3.3), facecolor=SUPERFICIE)
+    fig, ax = plt.subplots(figsize=(7.6, 4.6), facecolor=SUPERFICIE)
     ax.set_facecolor(SUPERFICIE)
     for i, (nombre, p, lo, hi, n, fam) in enumerate(datos):
         ax.barh(i, p, height=0.62, color=FAMILIA[fam], edgecolor=SUPERFICIE, linewidth=2)
@@ -63,10 +66,12 @@ def main():
     ax.set_axisbelow(True)
     marcas = [plt.Rectangle((0, 0), 1, 1, color=c) for c in FAMILIA.values()]
     ax.legend(marcas, FAMILIA.keys(), frameon=False, fontsize=8, loc="upper center", bbox_to_anchor=(0.45, -0.1), ncol=3)
-    ax.set_title("Vía A: goles en 200 episodios de prueba (defensor 50)",
+    ax.set_title("Ataque 2v1: goles en prueba (200 episodios por variante, defensor 50)",
                  loc="left", fontsize=10, color=TEXTO, fontweight="bold")
     fig.tight_layout()
-    fig.savefig("informe/figuras/jerarquia_final.png", dpi=200, facecolor=SUPERFICIE)
+    salida = Path("informe/figuras/top_policies")
+    salida.mkdir(parents=True, exist_ok=True)
+    fig.savefig(salida / "jerarquia_final.png", dpi=300, facecolor=SUPERFICIE)
     for d in datos:
         print(d)
 

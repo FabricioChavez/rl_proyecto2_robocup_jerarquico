@@ -1,0 +1,15 @@
+\begin{abstract}
+    Se estudia el control jerárquico de un ataque 2v1 en RoboCup 2D mediante
+    tres habilidades: persecución, conducción y definición. Se implementan DQN,
+    su variante Double DQN, A2C y PPO en PyTorch, combinando reward shaping
+    potencial (PBRS), imitación con BC/DAgger y ajuste posterior con RL.
+    La escalera de persecución utiliza tres semillas; la evaluación estandarizada
+    considera 200 episodios por modelo. En persecución, PPO con PBRS alcanza
+    98,7\,\% de éxito frente a 40,5\,\% con shaping ingenuo. La imitación mejora
+    conducción, aunque el ajuste con RL no beneficia por igual a todos los
+    algoritmos. El mejor sistema, con traspaso anticipado y definición entrenada
+    dentro de la jerarquía, obtiene 65,0\,\% de goles (IC 95\,\%: 58,2--71,3\,\%),
+    frente a 30,5\,\% de la jerarquía inicial y 0\,\% de la política plana.
+    No se alcanza la meta del 80\,\%; los resultados muestran la importancia de
+    evaluar la composición de habilidades y ampliar la validación entre semillas.
+\end{abstract}

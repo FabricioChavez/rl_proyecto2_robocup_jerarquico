@@ -1,0 +1,12 @@
+variante,episodios,goles,tasa,ic95_bajo,ic95_alto,retorno,archivo
+Plana PPO,200,0,0.0,0.0,0.018846005918320894,-1.5529196382130441,resultados/logs/plana/ppo/plana50/evaluacion_2v1.csv
+Todo + DQN,200,2,0.01,0.0027466006037749346,0.03572248519617954,-1.6310226647192179,resultados/logs/jerarquico/dqn/sistema_ft/evaluacion_2v1.csv
+Todo + A2C,200,32,0.16,0.11567342208544587,0.2171418619390124,-1.0276921807509798,resultados/logs/jerarquico/a2c/sistema_ft/evaluacion_2v1.csv
+Todo + PPO,200,53,0.265,0.20868060011609973,0.33017702266551113,-0.5350999058711691,resultados/logs/jerarquico/ppo/sistema_ft/evaluacion_2v1.csv
+Coord. DAgger humano,200,61,0.305,0.24536314352669053,0.3719867987814547,-0.3703033817925128,resultados/logs/jerarquico/ppo/sistema/evaluacion_2v1.csv
+Coord. BC experto,200,82,0.41,0.34415559179081295,0.4792366892744849,0.06139551634917448,resultados/logs/jerarquico/ppo/final_bc/jerarquico/ppo/final/evaluacion_2v1.csv
+Coord. DAgger experto,200,89,0.445,0.3778048169746545,0.5142682436763609,0.19845358178317413,resultados/logs/jerarquico/ppo/final/evaluacion_2v1.csv
+Coord. DAgger + PPO,200,94,0.47,0.4020463337087108,0.5390844266463886,0.3245165964611415,resultados/logs/jerarquico/ppo/final_ft/jerarquico/ppo/final/evaluacion_2v1.csv
+Currículo de definición,200,103,0.515,0.44610724474630287,0.5833273750761476,0.5283012284018849,resultados/logs/jerarquico/ppo/final2/evaluacion_2v1.csv
+Traspaso con ventaja,200,90,0.45,0.38263948633754313,0.519245114254289,0.32071475462788773,resultados/logs/jerarquico/ppo/final4/evaluacion_2v1.csv
+Definición dentro de jerarquía,200,130,0.65,0.5816333576186576,0.712712840605846,1.5781044450477224,resultados/logs/jerarquico/ppo/final4b/evaluacion_2v1.csv

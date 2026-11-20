@@ -1,0 +1,192 @@
+\section{MDP continuo}
+
+\subsection{Entorno y formulación}
+El entorno combina la física continua del simulador oficial de RoboCup 2D
+\cite{noda1998} con acciones discretas. El escenario 2v1 incluye un atacante
+controlado, un compañero heurístico, un defensor y un arquero adicional.
+El servidor funciona en modo síncrono: cada ciclo ejecuta las órdenes de los
+jugadores y devuelve una observación global del entrenador. La transición
+incorpora la física oficial de movimiento, patadas, colisiones y atajadas.
+
+La formulación de horizonte finito es
+\[
+    \mathcal{M}=(\mathcal{X},\mathcal{A},P,r,\rho_0,\gamma,H).
+\]
+Aquí, $\mathcal{X}$ representa el estado completo, $P$ la transición física y
+$\rho_0$ la distribución inicial. Los valores predeterminados son
+\[
+    \gamma=0{,}99,\qquad H=200\text{ ciclos}.
+\]
+El ataque avanza hacia el extremo positivo del campo:
+\[
+    (x,y)\in[-52{,}5,52{,}5]\times[-34,34].
+\]
+El defensor persigue el balón y, con recuperación, lo patea con potencia 20
+hacia el extremo contrario. El protocolo de evaluación fija su potencia de
+carrera en 50. El arquero sigue lateralmente el balón e intenta atajarlo cuando
+está cerca y en su zona; el compañero se ofrece por delante y dispara si recibe.
+
+\subsection{Observación de 34 componentes}
+La red recibe percepción privilegiada del entrenador:
+\[
+    s_t=h(x_t)\in\mathbb{R}^{34}.
+\]
+Para seis objetivos ---balón, dos postes, defensor, compañero y arquero--- se
+usan distancia y ángulo relativo al cuerpo del atacante:
+\[
+    d_i=\lVert q_i-p_a\rVert_2.
+\]
+\[
+    z_i=(d_i/105,\sin\alpha_i,\cos\alpha_i).
+\]
+El seno y coseno evitan la discontinuidad angular. El bloque propio del atacante es
+\[
+    z_a=(x_a/52{,}5,y_a/34,v_{ax},v_{ay},\sin\theta_a,\cos\theta_a).
+\]
+Se añaden velocidad del balón, estamina y tiempo normalizados:
+\[
+    z_b=(v_{bx}/3,v_{by}/3),\qquad z_e=(e_a/8000,t/H).
+\]
+Finalmente, las velocidades del defensor, arquero y compañero forman
+\[
+    z_v=(v_{dx},v_{dy},v_{gx},v_{gy},v_{mx},v_{my}).
+\]
+La observación completa conserva ese orden:
+\[
+    s_t=(z_1,\ldots,z_6,z_a,z_b,z_e,z_v).
+\]
+\[
+    \dim(s_t)=18+6+2+2+6=34.
+\]
+Las velocidades de los jugadores no se reescalan. Aunque la percepción es global,
+la observación omite memoria interna, como el contador de posesión rival y parte
+del estado del simulador. Por ello, la propiedad de Markov corresponde al estado
+completo aumentado, sin garantizarse para la representación reducida de la red.
+
+\subsection{Acciones e inicialización}
+Los espacios de acciones por tarea tienen los siguientes tamaños:
+\[
+    |\mathcal{A}_{\rm pers}|=12,\qquad |\mathcal{A}_{\rm cond}|=16.
+\]
+\[
+    |\mathcal{A}_{\rm def}|=23,\qquad |\mathcal{A}_{\rm plana}|=13.
+\]
+Persecución dispone de carreras de potencia 100/50, giros de 35 grados en ambos
+sentidos y ocho carreras orientadas al campo. Conducción combina carrera, giros,
+ocho direcciones, tres dribles, pase y disputa. En recuperación, los dribles usan
+potencia 30, el pase 45 y la disputa 60 hacia el lado opuesto al defensor.
+
+Definición incluye nueve tiros de potencia 100 hacia puntos fijos del arco:
+\[
+    Y_{\rm tiro}=\{-6,-4{,}5,-3,-1{,}5,0,1{,}5,3,4{,}5,6\}.
+\]
+También dispone de carrera, giros, ocho direcciones, avance con el balón y dos
+tiros al lado contrario del arquero.
+La política plana reúne cuatro movimientos básicos, tres dribles, un pase y
+cinco tiros. Las órdenes están sujetas a las restricciones físicas del servidor.
+
+En persecución y ataque completo, el atacante inicia en la coordenada horizontal
+$-10$, con altura y orientación aleatorias, y el balón entre cuatro y diez metros
+por delante. En conducción con recuperación, el balón inicia entre las coordenadas
+horizontales $-6$ y cero, con el atacante a 0,5\,m detrás. Definición inicia en
+la zona de tiro:
+\[
+    x_b\sim\mathcal{U}(32,42),\qquad y_b\sim\mathcal{U}(-9,9).
+\]
+El currículo amplía distancia y desorientación, incorpora balón en movimiento y
+traspasos reales, y repasa fases anteriores en el 30\,\% de los reinicios. La fase
+4 añade tiros lejanos con el defensor superado. También se entrena definición
+con los traspasos del sistema completo, manteniendo fijos al coordinador y
+a las otras habilidades.
+
+\subsection{Terminación y recompensa}
+Persecución tiene éxito cuando
+\[
+    d(a,b)<0{,}8\text{ m}.
+\]
+Conducción con recuperación exige superar al defensor y conservar control propio
+o recepción del compañero; esta última solo cuenta en 2v1:
+\[
+    x_b>x_d+2.
+\]
+\[
+    d(a,b)\leq1{,}085\quad\lor\quad d(m,b)<0{,}8.
+\]
+Definición y ataque completo tienen éxito por gol. Se interpola la altura
+del balón al cruzar la línea derecha entre dos ciclos:
+\[
+    y_\times=y_{b,t}+\frac{52{,}5-x_{b,t}}{x_{b,t+1}-x_{b,t}}\Delta y_b.
+\]
+\[
+    x_{b,t}<52{,}5\leq x_{b,t+1},\qquad |y_\times|<7{,}01.
+\]
+La señal de gol se obtiene de este cruce geométrico. Con recuperación, se pierde
+si un rival permanece a menos de 0,8\,m del balón y más cerca que el atacante
+durante 12 ciclos consecutivos; el contador se reinicia si deja de cumplirse.
+Persecución está exceptuada de esta causa de derrota. También se termina por
+salida del campo o por alcanzar el horizonte:
+\[
+    |x_b|\geq52{,}5\quad\lor\quad |y_b|>34.
+\]
+Un gol tiene prioridad sobre la salida al asignar la recompensa. El horizonte
+se trata como terminación, no como truncamiento externo. Las reglas clásicas,
+conservadas como alternativa, finalizan por proximidad rival inferior a 0,65\,m
+y exigen para conducción rebasar la coordenada 34 con control.
+
+La recompensa base entrega diez por éxito, menos cinco por otra terminación y
+un costo de 0,01 por ciclo no terminal. Si $S_t$ indica éxito y $D_t$ terminación:
+\[
+    r_t^0=10\mathbf{1}_{S_t}-5\mathbf{1}_{D_t\land\neg S_t}-0{,}01\mathbf{1}_{\neg D_t}.
+\]
+\[
+    G_0=\sum_{t=0}^{T-1}\gamma^t r_t^0.
+\]
+Durante el entrenamiento se puede añadir PBRS con escala $\lambda$:
+\[
+    r_t=r_t^0+\lambda\bigl(\gamma\bar\Phi_{t+1}-\Phi_t\bigr).
+\]
+El potencial siguiente se fija en cero al terminar. Los potenciales son
+\[
+    \Phi_{\rm pers}=-d(a,b)/10.
+\]
+\[
+    \Phi_{\rm cond}=(x_b-52{,}5)/20-d(a,b)/20.
+\]
+\[
+    \Phi_{\rm def}=-\lVert b-(52{,}5,0)\rVert_2/20.
+\]
+El último también se aplica a las tareas global y plana. El shaping ingenuo usa
+\[
+    F_t^{\rm naive}=\max(0,x_{b,t+1}-x_{b,t}).
+\]
+La evaluación desactiva el shaping y reporta el retorno base.
+
+\subsection{Opciones y semi-MDP}
+El coordinador elige entre tres habilidades ejecutadas de forma determinista,
+sin restringir sus estados de iniciación. Cada habilidad es una opción
+\cite{sutton1999options}:
+\[
+    o_k=\langle I_k,\pi_k,\beta_k\rangle.
+\]
+Cada opción dura como máximo ocho ciclos. Con recuperación, persecución termina
+al quedar a 1,085\,m del balón; conducción, al perderlo a más de seis metros o al
+llevarlo al pie con el atacante más allá de la coordenada 36; definición, al
+separarse del balón más de tres metros. Son condiciones de devolución del control,
+distintas de la terminación del episodio. Con reglas clásicas, las opciones
+mantienen su duración fija salvo finalización del episodio.
+
+La extensión de traspaso con ventaja permite ceder antes a definición, con balón
+al pie y el defensor superado:
+\[
+    x_a>X_{\rm ventaja},\qquad x_d<x_b-1.
+\]
+Esta condición adicional usa un umbral de 28\,m en la variante de tiro lejano.
+Para una duración efectiva $\tau$, la recompensa y la continuación son
+\[
+    R_t^{(o)}=\sum_{j=0}^{\tau-1}\gamma^j r_{t+j}.
+\]
+\[
+    Q(x_t,o)=\mathbb{E}\bigl[R_t^{(o)}+\gamma^\tau V(x_{t+\tau})\bigr].
+\]
+La continuación vale cero al terminar. El descuento del semi-MDP depende de
+los ciclos realmente ejecutados.

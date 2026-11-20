@@ -1,0 +1,34 @@
+\section{Discusión crítica}
+\subsection{¿Por qué no se alcanza el 80\,\% de goles?}
+El éxito de las habilidades aisladas no garantiza su composición: definición
+alcanza 86,0\,\% desde la zona de tiro, mientras el mejor ataque completo obtiene
+65,0\,\% (IC 95\,\%: 58,2--71,3\,\%), por debajo de la meta del 80\,\%.
+Entrenar definición dentro de la jerarquía eleva el resultado del sistema con
+traspaso anticipado de 45,0\,\% a 65,0\,\%. Esto respalda la relevancia de adaptar
+la habilidad a los estados que recibe, aunque el entrenamiento adicional impide
+atribuir toda la mejora únicamente al cambio de distribución.
+
+\subsection{¿Por qué el ajuste con RL no siempre mejora la imitación?}
+No hay un algoritmo superior en todas las tareas. DQN aprende persecución con
+menos interacciones que PPO y obtiene 83,0\,\% en definición tras imitación,
+pero queda en 70,5\,\% en conducción, frente a 100\,\% de A2C y 98,0\,\% de PPO.
+El ajuste del sistema completo tampoco supera al coordinador DAgger humano:
+26,5\,\% con PPO frente a 30,5\,\%. Estos resultados no demuestran sobreajuste
+del replay ni identifican por sí solos la causa del deterioro.
+
+\subsection{¿Qué papel tienen la recompensa y el experto?}
+La recompensa y las demostraciones también condicionan el aprendizaje.
+En conducción, el shaping ingenuo eleva la recompensa recibida, pero alcanza
+92,7\,\% de éxito frente a 99,2\,\% con PBRS. DAgger humano mejora BC de
+13,0\,\% a 53,5\,\%, mientras el experto programado alcanza al menos 99,5\,\%.
+La mejora depende de la tarea y del experto; no permite atribuir los fallos
+humanos a tiempos de reacción o falta de datos sin un análisis adicional.
+
+\subsection{¿Qué limita las conclusiones y cómo mejorar la evaluación?}
+La evidencia más sólida entre semillas corresponde a la escalera de persecución;
+las curvas de ajuste fino y las variantes jerárquicas no acreditan esa misma
+estabilidad. Además, se usa percepción privilegiada, rivales heurísticos y una
+condición estandarizada de prueba. El costo previo de imitación queda fuera del
+presupuesto de ajuste con RL. El siguiente paso es repetir las mejores variantes
+con varias semillas, igualar presupuestos y variar posición inicial y dificultad
+del rival para medir generalización y separar el efecto de cada modificación.

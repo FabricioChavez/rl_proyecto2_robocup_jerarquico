@@ -4,7 +4,7 @@ Lee (3 semillas, mismo presupuesto de 30 000 pasos, defensor a potencia 50):
   resultados/logs/persecucion/<algo>/<corrida>_s<k>/episodios.csv        curvas de aprendizaje
   resultados/logs/persecucion/<algo>/<corrida>_s<k>/actualizaciones.csv  pérdidas
   resultados/logs/<tarea>/<algo>/<corrida>_s<k>/evaluacion_2v1.csv       200 episodios de prueba
-Escribe en informe/figuras/:
+Escribe en informe/figuras/pilares/:
   pilar3_curvas.png      retorno episódico G0 (sin shaping), media ± 1σ entre semillas
   pilar3_perdidas.png    pérdidas y Q media (DQN frente a DDQN)
   pilar2_shaping.png     PBRS frente a shaping ingenuo y sin shaping (persecución y conducción)
@@ -23,17 +23,17 @@ import numpy as np
 import pandas as pd
 
 LOGS = Path("resultados/logs")
-SALIDA = Path("informe/figuras")
+SALIDA = Path("informe/figuras/pilares")
 SEMILLAS = (0, 1, 2)
 REJA = np.arange(0, 30001, 1000)
 
-# Paleta categórica validada (scripts/validate_palette.js, modo claro): orden fijo por método.
-C = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300"]
+# Colores consistentes por algoritmo en las figuras del informe.
+C = ["#8b8b83", "#2a78d6", "#1baf7a", "#eda100", "#eb6834", "#008300"]
 SUPERFICIE, TEXTO, TEXTO_2, REJILLA = "#fcfcfb", "#0b0b0b", "#52514e", "#e1e0d9"
 
 # nombre, tarea, algoritmo, prefijo de corrida, color
 ESCALERA = [
-    ("Q-tabular (P1)", "persecucion", "tabular", "escalera", C[0]),
+    ("Q tabular", "persecucion", "tabular", "escalera", C[0]),
     ("DQN", "persecucion", "dqn", "escalera", C[1]),
     ("Double DQN", "persecucion", "dqn", "escalera_ddqn", C[2]),
     ("A2C", "persecucion", "a2c", "escalera", C[3]),
@@ -112,7 +112,7 @@ def figura_curvas():
     fig.suptitle("Escalera de ablación en persecución: media ± 1σ sobre 3 semillas, defensor 50",
                  x=0.01, ha="left", fontsize=11.5, color=TEXTO)
     fig.tight_layout(rect=(0, 0, 1, 0.94))
-    fig.savefig(SALIDA / "pilar3_curvas.png", dpi=170, facecolor=SUPERFICIE)
+    fig.savefig(SALIDA / "pilar3_curvas.png", dpi=300, facecolor=SUPERFICIE)
     plt.close(fig)
 
 
@@ -146,8 +146,8 @@ def figura_perdidas():
         ("Pérdida del crítico", [("A2C", "a2c", "escalera", C[3]), ("PPO", "ppo", "escalera", C[4]), ("BC + PPO", "ppo", "escalera_bc", C[5])], "perdida_valor"),
         ("Entropía de la política", [("A2C", "a2c", "escalera", C[3]), ("PPO", "ppo", "escalera", C[4]), ("BC + PPO", "ppo", "escalera_bc", C[5])], "entropia"),
     ]
-    fig, ejes = plt.subplots(1, 4, figsize=(13, 3.2), facecolor=SUPERFICIE)
-    for ax, (titulo, series, columna) in zip(ejes, paneles):
+    fig, ejes = plt.subplots(2, 2, figsize=(8, 5.2), facecolor=SUPERFICIE)
+    for ax, (titulo, series, columna) in zip(ejes.flat, paneles):
         estilo(ax, titulo)
         for nombre, algo, corrida, color in series:
             ys = media_columna(actualizaciones(algo, corrida), columna)
@@ -161,7 +161,7 @@ def figura_perdidas():
     fig.suptitle("Dinámica de optimización (media ± 1σ, 3 semillas)", x=0.01, ha="left",
                  fontsize=11.5, color=TEXTO)
     fig.tight_layout(rect=(0, 0, 1, 0.92))
-    fig.savefig(SALIDA / "pilar3_perdidas.png", dpi=170, facecolor=SUPERFICIE)
+    fig.savefig(SALIDA / "pilar3_perdidas.png", dpi=300, facecolor=SUPERFICIE)
     plt.close(fig)
 
 
@@ -173,13 +173,13 @@ def figura_shaping():
     banda(ejes[1], SHAPING_C, "exito", ventana=40, ylabel="tasa de éxito móvil")
     ejes[1].set_ylim(0, 1.02)
     estilo(ejes[2], "Conducción: retorno que ve el agente")
-    banda(ejes[2], SHAPING_C, "retorno_shaping", ventana=40, ylabel="retorno con shaping")
+    banda(ejes[2], SHAPING_C, "retorno_shaping", ventana=40, ylabel="suma de recompensas (sin descuento)")
     for ax in ejes:
         ax.legend(frameon=False, fontsize=8)
     fig.suptitle("PBRS frente a shaping ingenuo (ajuste fino PPO desde el mismo BC del experto en conducción)",
                  x=0.01, ha="left", fontsize=11.5, color=TEXTO)
     fig.tight_layout(rect=(0, 0, 1, 0.92))
-    fig.savefig(SALIDA / "pilar2_shaping.png", dpi=170, facecolor=SUPERFICIE)
+    fig.savefig(SALIDA / "pilar2_shaping.png", dpi=300, facecolor=SUPERFICIE)
     plt.close(fig)
 
 
@@ -217,7 +217,7 @@ def tabla():
             semillas=len(ds),
             G0_asintotico=np.mean(asint), G0_sigma_semillas=np.std(asint),
             G0_sigma_intra=np.mean(ruido),
-            pasos_80=np.nanmean(cruce) if tarea == "persecucion" else np.nan,
+            pasos_80=np.nanmean(cruce) if tarea == "persecucion" and np.isfinite(cruce).any() else np.nan,
             semillas_que_llegan_80=int(np.sum(~np.isnan(cruce))) if tarea == "persecucion" else np.nan,
             exito_entrenamiento=np.mean(exito_ent),
             exito_prueba=np.mean(ev) if ev else np.nan,

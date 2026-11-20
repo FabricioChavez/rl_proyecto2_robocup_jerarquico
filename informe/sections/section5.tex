@@ -1,0 +1,77 @@
+\section{PBRS e imitación}
+Se combinan recompensas potenciales y aprendizaje por imitación para orientar
+la exploración y aprovechar demostraciones antes del ajuste con RL.
+
+\subsection{Shaping potencial e invariancia}
+PBRS \cite{ng1999} añade a la recompensa base una diferencia de potenciales:
+\[
+    r_t^{\rm sh}=r_t+F_t,\qquad F_t=\gamma\Phi(s_{t+1})-\Phi(s_t).
+\]
+El entorno permite escalar este término por una constante, que puede absorberse
+en el potencial. Se usan los potenciales de distancia al balón, avance controlado
+y proximidad al arco definidos en el modelado del entorno. En toda terminación,
+incluido el horizonte, el potencial siguiente se fija en cero.
+
+Para un episodio de longitud $T$, la suma descontada telescopa:
+\begin{equation}
+    \sum_{t=0}^{T-1}\gamma^t F_t=-\Phi(s_0).
+\end{equation}
+Por tanto, el retorno y el valor óptimo solo cambian en una constante dependiente
+del estado inicial:
+\[
+    G^{\rm sh}=G-\Phi(s_0).
+\]
+\[
+    Q_{\rm sh}^*(s,a)=Q^*(s,a)-\Phi(s).
+\]
+Como el desplazamiento no depende de la acción, se conserva la política óptima.
+Esta garantía corresponde al problema de horizonte finito y al descuento usado
+en la suma; no garantiza por sí sola la convergencia de una red neuronal.
+
+La alternativa ingenua recompensa cualquier avance horizontal positivo:
+\[
+    F_t^{\rm ingenuo}=\max(0,x_{b,t+1}-x_{b,t}).
+\]
+Puede premiar avances repetidos sin compensar los retrocesos ni exigir control
+del balón. El contraste usa el mismo modelo inicial de conducción y cambia
+únicamente el shaping entre ninguno, PBRS e ingenuo para estudiar reward hacking.
+
+\subsection{Preentrenamiento por imitación}
+Las demostraciones asocian observaciones con acciones expertas, humanas o
+programadas. Behavioral Cloning (BC) inicializa las mismas redes que luego se
+ajustan con RL. Para PPO/A2C, la política minimiza la entropía cruzada:
+\[
+    L_{\rm BC}=-\mathbb{E}_{(s,a^E)\sim\mathcal{D}}[\log\pi_\theta(a^E\mid s)].
+\]
+El crítico se ajusta a los retornos descontados de las trayectorias registradas.
+La implementación permite balancear clases y añadir regularización entrópica.
+
+Para DQN se utiliza un margen supervisado inspirado en DQfD \cite{hester2018}:
+\[
+    L_{\rm margen}=\max_a[Q_\theta(s,a)+\ell(a^E,a)]-Q_\theta(s,a^E).
+\]
+El margen es cero para la acción experta y positivo para las restantes. Se añade
+una pérdida TD de Double DQN, ponderada y calculada sobre transiciones válidas;
+la supervisión de acciones utiliza únicamente estados etiquetados.
+
+\subsection{DAgger y ajuste con RL}
+Con el experto programado, DAgger \cite{ross2011} deja actuar a la red y etiqueta
+cada estado visitado. Al finalizar cada ronda, incorpora las nuevas etiquetas
+y reentrena sobre el conjunto acumulado:
+\[
+    \mathcal{D}_{k+1}=\mathcal{D}_k\cup\{(s,\pi_E(s)):s\text{ visitado}\}.
+\]
+Así se corrigen errores en estados inducidos por la propia política. En la variante
+humana HG-DAgger \cite{kelly2019}, el usuario toma el control para corregirla;
+solo esas intervenciones aportan etiquetas de acción.
+
+El experto de conducción persigue, disputa, esquiva o pasa según la posición
+del defensor y la disponibilidad del compañero. El del coordinador elige
+persecución si el balón está a más de cinco metros; en otro caso selecciona
+definición al cumplirse la zona de traspaso, incluida la ventaja opcional,
+y conducción en los demás estados.
+
+Finalmente se continúa el aprendizaje con RL desde los pesos imitados. En la
+configuración base del sistema jerárquico, PPO utiliza tasa de aprendizaje
+$10^{-4}$, coeficiente de entropía $10^{-3}$ y KL objetivo 0,02; otras variantes
+ajustan estos parámetros. Los resultados de esta aceleración se evalúan después.

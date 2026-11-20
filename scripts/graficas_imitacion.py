@@ -3,7 +3,7 @@
 No entrena ni evalúa nada: solo lee
   resultados/logs/<tarea>/<algoritmo>/<corrida>/evaluacion_2v1.csv  (evaluar)
   resultados/logs/<tarea>/<algoritmo>/<corrida>/episodios.csv       (entrenar)
-y escribe en informe/figuras/:
+y escribe en informe/figuras/imitacion/:
   imitacion_exito_evaluacion.png   éxito por fase y variante, IC Wilson 95 %
   imitacion_curvas_ajuste_fino.png éxito durante el ajuste fino con RL
   imitacion_resumen.csv            la misma tabla en números
@@ -22,7 +22,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 LOGS = Path("resultados/logs")
-SALIDA = Path("informe/figuras")
+SALIDA = Path("informe/figuras/imitacion")
 
 # Paleta categórica validada (orden fijo): imitación, imitación + RL, otra referencia.
 AZUL, NARANJA, AGUA = "#2a78d6", "#eb6834", "#1baf7a"

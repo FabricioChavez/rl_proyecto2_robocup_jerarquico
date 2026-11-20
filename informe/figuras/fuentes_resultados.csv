@@ -1,0 +1,159 @@
+figura,archivo,uso
+pilares/pilar3_curvas.png,resultados/logs/persecucion/tabular/escalera_s0/episodios.csv,entrenamiento; tres semillas
+pilares/pilar3_curvas.png,resultados/logs/persecucion/tabular/escalera_s1/episodios.csv,entrenamiento; tres semillas
+pilares/pilar3_curvas.png,resultados/logs/persecucion/tabular/escalera_s2/episodios.csv,entrenamiento; tres semillas
+pilares/pilar3_curvas.png,resultados/logs/persecucion/dqn/escalera_s0/episodios.csv,entrenamiento; tres semillas
+pilares/pilar3_curvas.png,resultados/logs/persecucion/dqn/escalera_s1/episodios.csv,entrenamiento; tres semillas
+pilares/pilar3_curvas.png,resultados/logs/persecucion/dqn/escalera_s2/episodios.csv,entrenamiento; tres semillas
+pilares/pilar3_curvas.png,resultados/logs/persecucion/dqn/escalera_ddqn_s0/episodios.csv,entrenamiento; tres semillas
+pilares/pilar3_curvas.png,resultados/logs/persecucion/dqn/escalera_ddqn_s1/episodios.csv,entrenamiento; tres semillas
+pilares/pilar3_curvas.png,resultados/logs/persecucion/dqn/escalera_ddqn_s2/episodios.csv,entrenamiento; tres semillas
+pilares/pilar3_curvas.png,resultados/logs/persecucion/a2c/escalera_s0/episodios.csv,entrenamiento; tres semillas
+pilares/pilar3_curvas.png,resultados/logs/persecucion/a2c/escalera_s1/episodios.csv,entrenamiento; tres semillas
+pilares/pilar3_curvas.png,resultados/logs/persecucion/a2c/escalera_s2/episodios.csv,entrenamiento; tres semillas
+pilares/pilar3_curvas.png,resultados/logs/persecucion/ppo/escalera_s0/episodios.csv,entrenamiento; tres semillas
+pilares/pilar3_curvas.png,resultados/logs/persecucion/ppo/escalera_s1/episodios.csv,entrenamiento; tres semillas
+pilares/pilar3_curvas.png,resultados/logs/persecucion/ppo/escalera_s2/episodios.csv,entrenamiento; tres semillas
+pilares/pilar3_curvas.png,resultados/logs/persecucion/ppo/escalera_bc_s0/episodios.csv,entrenamiento; tres semillas
+pilares/pilar3_curvas.png,resultados/logs/persecucion/ppo/escalera_bc_s1/episodios.csv,entrenamiento; tres semillas
+pilares/pilar3_curvas.png,resultados/logs/persecucion/ppo/escalera_bc_s2/episodios.csv,entrenamiento; tres semillas
+pilares/pilar3_perdidas.png,resultados/logs/persecucion/dqn/escalera_s0/actualizaciones.csv,entrenamiento; tres semillas
+pilares/pilar3_perdidas.png,resultados/logs/persecucion/dqn/escalera_s1/actualizaciones.csv,entrenamiento; tres semillas
+pilares/pilar3_perdidas.png,resultados/logs/persecucion/dqn/escalera_s2/actualizaciones.csv,entrenamiento; tres semillas
+pilares/pilar3_perdidas.png,resultados/logs/persecucion/dqn/escalera_ddqn_s0/actualizaciones.csv,entrenamiento; tres semillas
+pilares/pilar3_perdidas.png,resultados/logs/persecucion/dqn/escalera_ddqn_s1/actualizaciones.csv,entrenamiento; tres semillas
+pilares/pilar3_perdidas.png,resultados/logs/persecucion/dqn/escalera_ddqn_s2/actualizaciones.csv,entrenamiento; tres semillas
+pilares/pilar3_perdidas.png,resultados/logs/persecucion/a2c/escalera_s0/actualizaciones.csv,entrenamiento; tres semillas
+pilares/pilar3_perdidas.png,resultados/logs/persecucion/a2c/escalera_s1/actualizaciones.csv,entrenamiento; tres semillas
+pilares/pilar3_perdidas.png,resultados/logs/persecucion/a2c/escalera_s2/actualizaciones.csv,entrenamiento; tres semillas
+pilares/pilar3_perdidas.png,resultados/logs/persecucion/ppo/escalera_s0/actualizaciones.csv,entrenamiento; tres semillas
+pilares/pilar3_perdidas.png,resultados/logs/persecucion/ppo/escalera_s1/actualizaciones.csv,entrenamiento; tres semillas
+pilares/pilar3_perdidas.png,resultados/logs/persecucion/ppo/escalera_s2/actualizaciones.csv,entrenamiento; tres semillas
+pilares/pilar3_perdidas.png,resultados/logs/persecucion/ppo/escalera_bc_s0/actualizaciones.csv,entrenamiento; tres semillas
+pilares/pilar3_perdidas.png,resultados/logs/persecucion/ppo/escalera_bc_s1/actualizaciones.csv,entrenamiento; tres semillas
+pilares/pilar3_perdidas.png,resultados/logs/persecucion/ppo/escalera_bc_s2/actualizaciones.csv,entrenamiento; tres semillas
+pilares/pilar2_shaping.png,resultados/logs/persecucion/ppo/escalera_none_s0/episodios.csv,entrenamiento; tres semillas
+pilares/pilar2_shaping.png,resultados/logs/persecucion/ppo/escalera_none_s1/episodios.csv,entrenamiento; tres semillas
+pilares/pilar2_shaping.png,resultados/logs/persecucion/ppo/escalera_none_s2/episodios.csv,entrenamiento; tres semillas
+pilares/pilar2_shaping.png,resultados/logs/persecucion/ppo/escalera_s0/episodios.csv,entrenamiento; tres semillas
+pilares/pilar2_shaping.png,resultados/logs/persecucion/ppo/escalera_s1/episodios.csv,entrenamiento; tres semillas
+pilares/pilar2_shaping.png,resultados/logs/persecucion/ppo/escalera_s2/episodios.csv,entrenamiento; tres semillas
+pilares/pilar2_shaping.png,resultados/logs/persecucion/ppo/escalera_naive_s0/episodios.csv,entrenamiento; tres semillas
+pilares/pilar2_shaping.png,resultados/logs/persecucion/ppo/escalera_naive_s1/episodios.csv,entrenamiento; tres semillas
+pilares/pilar2_shaping.png,resultados/logs/persecucion/ppo/escalera_naive_s2/episodios.csv,entrenamiento; tres semillas
+pilares/pilar2_shaping.png,resultados/logs/conduccion/ppo/hack_none_s0/episodios.csv,entrenamiento; tres semillas
+pilares/pilar2_shaping.png,resultados/logs/conduccion/ppo/hack_none_s1/episodios.csv,entrenamiento; tres semillas
+pilares/pilar2_shaping.png,resultados/logs/conduccion/ppo/hack_none_s2/episodios.csv,entrenamiento; tres semillas
+pilares/pilar2_shaping.png,resultados/logs/conduccion/ppo/hack_pbrs_s0/episodios.csv,entrenamiento; tres semillas
+pilares/pilar2_shaping.png,resultados/logs/conduccion/ppo/hack_pbrs_s1/episodios.csv,entrenamiento; tres semillas
+pilares/pilar2_shaping.png,resultados/logs/conduccion/ppo/hack_pbrs_s2/episodios.csv,entrenamiento; tres semillas
+pilares/pilar2_shaping.png,resultados/logs/conduccion/ppo/hack_naive_s0/episodios.csv,entrenamiento; tres semillas
+pilares/pilar2_shaping.png,resultados/logs/conduccion/ppo/hack_naive_s1/episodios.csv,entrenamiento; tres semillas
+pilares/pilar2_shaping.png,resultados/logs/conduccion/ppo/hack_naive_s2/episodios.csv,entrenamiento; tres semillas
+imitacion/imitacion_resumen.csv,resultados/logs/persecucion/ppo/humano_bc/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/persecucion/ppo/humano/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/persecucion/ppo/sistema_ft/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/persecucion/a2c/sistema_ft/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/persecucion/dqn/sistema_ft/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/conduccion/ppo/human_bc/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/conduccion/ppo/human_dagger/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/conduccion/ppo/expert_bc/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/conduccion/ppo/expert_dagger/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/conduccion/ppo/sistema_ft/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/conduccion/a2c/sistema_ft/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/conduccion/dqn/sistema_ft/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/definicion/ppo/humano_bc/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/definicion/ppo/humano/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/definicion/ppo/sistema_ft/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/definicion/a2c/sistema_ft/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/definicion/dqn/sistema_ft/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/definicion/ppo/zona_tiro/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/definicion/dqn/zona_tiro/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/jerarquico/ppo/sistema/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/jerarquico/ppo/sistema_ft/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/jerarquico/a2c/sistema_ft/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/jerarquico/dqn/sistema_ft/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/jerarquico/ppo/final_bc/jerarquico/ppo/final/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/jerarquico/ppo/final/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+imitacion/imitacion_resumen.csv,resultados/logs/jerarquico/ppo/final_ft/jerarquico/ppo/final/evaluacion_2v1.csv,evaluación; no mezclar condiciones
+top_policies/jerarquia_final.png,resultados/logs/plana/ppo/plana50/evaluacion_2v1.csv,200 episodios; defensor 50; IC Wilson 95 %
+top_policies/jerarquia_final.png,resultados/logs/jerarquico/dqn/sistema_ft/evaluacion_2v1.csv,200 episodios; defensor 50; IC Wilson 95 %
+top_policies/jerarquia_final.png,resultados/logs/jerarquico/a2c/sistema_ft/evaluacion_2v1.csv,200 episodios; defensor 50; IC Wilson 95 %
+top_policies/jerarquia_final.png,resultados/logs/jerarquico/ppo/sistema_ft/evaluacion_2v1.csv,200 episodios; defensor 50; IC Wilson 95 %
+top_policies/jerarquia_final.png,resultados/logs/jerarquico/ppo/sistema/evaluacion_2v1.csv,200 episodios; defensor 50; IC Wilson 95 %
+top_policies/jerarquia_final.png,resultados/logs/jerarquico/ppo/final_bc/jerarquico/ppo/final/evaluacion_2v1.csv,200 episodios; defensor 50; IC Wilson 95 %
+top_policies/jerarquia_final.png,resultados/logs/jerarquico/ppo/final/evaluacion_2v1.csv,200 episodios; defensor 50; IC Wilson 95 %
+top_policies/jerarquia_final.png,resultados/logs/jerarquico/ppo/final_ft/jerarquico/ppo/final/evaluacion_2v1.csv,200 episodios; defensor 50; IC Wilson 95 %
+top_policies/jerarquia_final.png,resultados/logs/jerarquico/ppo/final2/evaluacion_2v1.csv,200 episodios; defensor 50; IC Wilson 95 %
+top_policies/jerarquia_final.png,resultados/logs/jerarquico/ppo/final4/evaluacion_2v1.csv,200 episodios; defensor 50; IC Wilson 95 %
+top_policies/jerarquia_final.png,resultados/logs/jerarquico/ppo/final4b/evaluacion_2v1.csv,200 episodios; defensor 50; IC Wilson 95 %
+pilares/pilar3_tabla.csv,resultados/logs/persecucion/dqn/escalera_s0/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/persecucion/dqn/escalera_s1/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/persecucion/dqn/escalera_s2/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/persecucion/dqn/escalera_ddqn_s0/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/persecucion/dqn/escalera_ddqn_s1/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/persecucion/dqn/escalera_ddqn_s2/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/persecucion/a2c/escalera_s0/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/persecucion/a2c/escalera_s1/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/persecucion/a2c/escalera_s2/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/persecucion/ppo/escalera_s0/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/persecucion/ppo/escalera_s1/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/persecucion/ppo/escalera_s2/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/persecucion/ppo/escalera_bc_s0/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/persecucion/ppo/escalera_bc_s1/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/persecucion/ppo/escalera_bc_s2/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/persecucion/ppo/escalera_none_s0/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/persecucion/ppo/escalera_none_s1/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/persecucion/ppo/escalera_none_s2/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/persecucion/ppo/escalera_naive_s0/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/persecucion/ppo/escalera_naive_s1/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/persecucion/ppo/escalera_naive_s2/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/conduccion/ppo/hack_none_s0/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/conduccion/ppo/hack_none_s1/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/conduccion/ppo/hack_none_s2/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/conduccion/ppo/hack_pbrs_s0/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/conduccion/ppo/hack_pbrs_s1/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/conduccion/ppo/hack_pbrs_s2/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/conduccion/ppo/hack_naive_s0/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/conduccion/ppo/hack_naive_s1/evaluacion_2v1.csv,200 episodios por semilla
+pilares/pilar3_tabla.csv,resultados/logs/conduccion/ppo/hack_naive_s2/evaluacion_2v1.csv,200 episodios por semilla
+imitacion/aprendizaje_subtareas.png,resultados/logs/persecucion/dqn/escalera_s0/episodios.csv,desde cero; hasta 3 semillas; ventana 50; cobertura variable indicada en leyenda; sin extrapolar
+imitacion/aprendizaje_subtareas.png,resultados/logs/persecucion/dqn/escalera_s1/episodios.csv,desde cero; hasta 3 semillas; ventana 50; cobertura variable indicada en leyenda; sin extrapolar
+imitacion/aprendizaje_subtareas.png,resultados/logs/persecucion/dqn/escalera_s2/episodios.csv,desde cero; hasta 3 semillas; ventana 50; cobertura variable indicada en leyenda; sin extrapolar
+imitacion/aprendizaje_subtareas.png,resultados/logs/persecucion/dqn/sistema_ft/episodios.csv,ajuste fino; una corrida; ventana 100
+imitacion/aprendizaje_subtareas.png,resultados/logs/persecucion/dqn/sistema_ft/evaluacion_2v1.csv,prueba del ajuste fino; 200 episodios; defensor 50; Wilson 95 %
+imitacion/aprendizaje_subtareas.png,resultados/logs/persecucion/a2c/escalera_s0/episodios.csv,desde cero; hasta 3 semillas; ventana 50; cobertura variable indicada en leyenda; sin extrapolar
+imitacion/aprendizaje_subtareas.png,resultados/logs/persecucion/a2c/escalera_s1/episodios.csv,desde cero; hasta 3 semillas; ventana 50; cobertura variable indicada en leyenda; sin extrapolar
+imitacion/aprendizaje_subtareas.png,resultados/logs/persecucion/a2c/escalera_s2/episodios.csv,desde cero; hasta 3 semillas; ventana 50; cobertura variable indicada en leyenda; sin extrapolar
+imitacion/aprendizaje_subtareas.png,resultados/logs/persecucion/a2c/sistema_ft/episodios.csv,ajuste fino; una corrida; ventana 100
+imitacion/aprendizaje_subtareas.png,resultados/logs/persecucion/a2c/sistema_ft/evaluacion_2v1.csv,prueba del ajuste fino; 200 episodios; defensor 50; Wilson 95 %
+imitacion/aprendizaje_subtareas.png,resultados/logs/persecucion/ppo/escalera_s0/episodios.csv,desde cero; hasta 3 semillas; ventana 50; cobertura variable indicada en leyenda; sin extrapolar
+imitacion/aprendizaje_subtareas.png,resultados/logs/persecucion/ppo/escalera_s1/episodios.csv,desde cero; hasta 3 semillas; ventana 50; cobertura variable indicada en leyenda; sin extrapolar
+imitacion/aprendizaje_subtareas.png,resultados/logs/persecucion/ppo/escalera_s2/episodios.csv,desde cero; hasta 3 semillas; ventana 50; cobertura variable indicada en leyenda; sin extrapolar
+imitacion/aprendizaje_subtareas.png,resultados/logs/persecucion/ppo/sistema_ft/episodios.csv,ajuste fino; una corrida; ventana 100
+imitacion/aprendizaje_subtareas.png,resultados/logs/persecucion/ppo/sistema_ft/evaluacion_2v1.csv,prueba del ajuste fino; 200 episodios; defensor 50; Wilson 95 %
+imitacion/aprendizaje_subtareas.png,resultados/logs/conduccion/dqn/semilla_0/episodios.csv,desde cero; hasta 2 semillas; ventana 50; cobertura variable indicada en leyenda; sin extrapolar
+imitacion/aprendizaje_subtareas.png,resultados/logs/conduccion/dqn/semilla_1/episodios.csv,desde cero; hasta 2 semillas; ventana 50; cobertura variable indicada en leyenda; sin extrapolar
+imitacion/aprendizaje_subtareas.png,resultados/logs/conduccion/dqn/sistema_ft/episodios.csv,ajuste fino; una corrida; ventana 100
+imitacion/aprendizaje_subtareas.png,resultados/logs/conduccion/dqn/sistema_ft/evaluacion_2v1.csv,prueba del ajuste fino; 200 episodios; defensor 50; Wilson 95 %
+imitacion/aprendizaje_subtareas.png,resultados/logs/conduccion/a2c/semilla_0/episodios.csv,desde cero; hasta 2 semillas; ventana 50; cobertura variable indicada en leyenda; sin extrapolar
+imitacion/aprendizaje_subtareas.png,resultados/logs/conduccion/a2c/semilla_1/episodios.csv,desde cero; hasta 2 semillas; ventana 50; cobertura variable indicada en leyenda; sin extrapolar
+imitacion/aprendizaje_subtareas.png,resultados/logs/conduccion/a2c/sistema_ft/episodios.csv,ajuste fino; una corrida; ventana 100
+imitacion/aprendizaje_subtareas.png,resultados/logs/conduccion/a2c/sistema_ft/evaluacion_2v1.csv,prueba del ajuste fino; 200 episodios; defensor 50; Wilson 95 %
+imitacion/aprendizaje_subtareas.png,resultados/logs/conduccion/ppo/semilla_0/episodios.csv,desde cero; hasta 2 semillas; ventana 50; cobertura variable indicada en leyenda; sin extrapolar
+imitacion/aprendizaje_subtareas.png,resultados/logs/conduccion/ppo/semilla_1/episodios.csv,desde cero; hasta 2 semillas; ventana 50; cobertura variable indicada en leyenda; sin extrapolar
+imitacion/aprendizaje_subtareas.png,resultados/logs/conduccion/ppo/sistema_ft/episodios.csv,ajuste fino; una corrida; ventana 100
+imitacion/aprendizaje_subtareas.png,resultados/logs/conduccion/ppo/sistema_ft/evaluacion_2v1.csv,prueba del ajuste fino; 200 episodios; defensor 50; Wilson 95 %
+imitacion/aprendizaje_subtareas.png,resultados/logs/definicion/dqn/semilla_0/episodios.csv,desde cero; hasta 2 semillas; ventana 50; cobertura variable indicada en leyenda; sin extrapolar
+imitacion/aprendizaje_subtareas.png,resultados/logs/definicion/dqn/semilla_1/episodios.csv,desde cero; hasta 2 semillas; ventana 50; cobertura variable indicada en leyenda; sin extrapolar
+imitacion/aprendizaje_subtareas.png,resultados/logs/definicion/dqn/sistema_ft/episodios.csv,ajuste fino; una corrida; ventana 200
+imitacion/aprendizaje_subtareas.png,resultados/logs/definicion/dqn/sistema_ft/evaluacion_2v1.csv,prueba del ajuste fino; 200 episodios; defensor 50; Wilson 95 %
+imitacion/aprendizaje_subtareas.png,resultados/logs/definicion/a2c/semilla_0/episodios.csv,desde cero; hasta 2 semillas; ventana 50; cobertura variable indicada en leyenda; sin extrapolar
+imitacion/aprendizaje_subtareas.png,resultados/logs/definicion/a2c/semilla_1/episodios.csv,desde cero; hasta 2 semillas; ventana 50; cobertura variable indicada en leyenda; sin extrapolar
+imitacion/aprendizaje_subtareas.png,resultados/logs/definicion/a2c/sistema_ft/episodios.csv,ajuste fino; una corrida; ventana 200
+imitacion/aprendizaje_subtareas.png,resultados/logs/definicion/a2c/sistema_ft/evaluacion_2v1.csv,prueba del ajuste fino; 200 episodios; defensor 50; Wilson 95 %
+imitacion/aprendizaje_subtareas.png,resultados/logs/definicion/ppo/semilla_0/episodios.csv,desde cero; hasta 2 semillas; ventana 50; cobertura variable indicada en leyenda; sin extrapolar
+imitacion/aprendizaje_subtareas.png,resultados/logs/definicion/ppo/semilla_1/episodios.csv,desde cero; hasta 2 semillas; ventana 50; cobertura variable indicada en leyenda; sin extrapolar
+imitacion/aprendizaje_subtareas.png,resultados/logs/definicion/ppo/sistema_ft/episodios.csv,ajuste fino; una corrida; ventana 200
+imitacion/aprendizaje_subtareas.png,resultados/logs/definicion/ppo/sistema_ft/evaluacion_2v1.csv,prueba del ajuste fino; 200 episodios; defensor 50; Wilson 95 %
+04_jerarquico/reward_y_goles.png,resultados/logs/definicion/ppo/lejano_jer/episodios.csv,retorno base; definición dentro de jerarquía; media móvil de 1000 episodios
