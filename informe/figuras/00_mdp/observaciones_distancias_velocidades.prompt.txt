@@ -1,0 +1,39 @@
+Use case: scientific-educational. Create ONE polished, mathematically accurate, extremely legible Spanish educational diagram for a scientific report about RoboCup 2D observations. New image, landscape high-resolution, approximately 1800 by 1150 or larger. Crisp flat vector-like 2D top-down football field, muted medium green turf, fine white boundary lines, center line and penalty box and right goal; like a clean matplotlib soccer diagram, NOT photorealistic. White margins. NO trajectories, NO angles, NO sine or cosine, NO equations about reward.
+
+Title exactly: "Observación del atacante en RoboCup 2D"
+Subtitle exactly: "Distancias a los objetivos y vectores de velocidad"
+
+IMPORTANT CORRECT SEMANTICS: five groups of observation targets = ball, goal (two posts), defender, teammate, goalkeeper; this makes SIX target points and SIX distance rays. The controlled attacker is the observation origin, not one of the five target groups. Draw only 4 player disks total (attacker, teammate, defender, goalkeeper), one ball disk, and two post markers. No duplicate players anywhere, no other objects styled as players.
+
+Composition: central wide field occupies about 73% of image width, and a clean white right-hand sidebar 25% width provides a generously spaced notation key. Top-down rightward attack. On field place attacker blue disk left-middle at roughly (25% of field width,58% of field height); ball small white disk forward and above at (44%,42%); teammate light-blue disk high at (55%,18%); defender orange disk low at (62%,81%); goalkeeper dark-orange disk at (87%,52%); the upper right goal post at (94%,35%) and lower right goal post at (94%,65%). Make goal visible between the two posts. Keep all objects apart.
+
+DISTANCES: Six thin pale white dashed straight rays start exactly at attacker disk and end exactly at the six targets. Mark each with a single clear readable black mathematical distance symbol inside a small white rounded badge, placed in open space beside its ray, away from all arrows and other badges:
+d_1 from attacker to ball.
+d_2 from attacker to UPPER post, labelled "Poste −" (upper screen is negative y).
+d_3 from attacker to LOWER post, labelled "Poste +".
+d_4 from attacker to defender.
+d_5 from attacker to teammate.
+d_6 from attacker to goalkeeper.
+Every target has exactly one distance ray, and every d_i appears only once on field. Distance rays must not be mistaken for velocity arrows; NO arrowheads on distances. Separate labels on the three near-parallel goal rays by using different positions along their lengths; ensure zero text overlaps or text crossed by lines. Interrupt a ray behind its white label card if necessary.
+
+VELOCITIES: draw one short thick bright yellow arrow with dark outline anchored to EACH moving entity: attacker, ball, teammate, defender, goalkeeper. Velocity vectors are illustrative, not a measured trajectory. Put a bold mathematical component pair adjacent to each velocity arrow, on a readable white label card with substantial padding and clear separation from distance labels:
+attacker "(v_ax, v_ay)"
+ball "(v_bx, v_by)"
+teammate "(v_mx, v_my)"
+defender "(v_dx, v_dy)"
+goalkeeper "(v_gx, v_gy)"
+Render the second part of each variable as a proper readable subscript: v with subscript ax, ay, bx, by, mx, my, dx, dy, gx, gy. Exact spelling is essential. NO velocity arrows on the fixed posts. Keep goalkeeper velocity arrow and label on its left or above where they do not obscure the goal or distance labels. Position each component card away from the ray fan.
+
+Names on field, readable and separate from velocity cards: "Atacante", "Balón", "Compañero", "Defensor", "Arquero", "Poste −", "Poste +". Under the attacker name add position notation "p_a = (x_a, y_a)" with proper subscripts.
+
+SIDEBAR on white, dark clean text, heading "Cinco grupos de objetivos", five numbered rows with generous vertical space and a horizontal separator between rows. Exact mapping:
+"1. Balón" then "d_1"
+"2. Arco (dos postes)" then "d_2 y d_3 · puntos fijos"
+"3. Defensor" then "d_4"
+"4. Compañero" then "d_5"
+"5. Arquero" then "d_6"
+Bottom of sidebar a compact legend: white dashed line on a small green sample + "Distancia desde el atacante"; yellow arrow with dark outline + "Velocidad".
+Footer under field, small but readable: "d_i = ‖q_i − p_a‖₂"
+Second short footer line: "Esquema ilustrativo · Los postes no tienen velocidad"
+
+Typography is the primary priority: large clear well-spaced variables, consistent mathematical notation, proper subscripts, high contrast, NO overlapping labels, NO crowded text, NO cut-off labels or cropping. Reserve whitespace and use leader lines if needed. Field geometry can be schematic for clarity. No watermarks or decorative titles.
